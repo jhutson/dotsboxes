@@ -1,0 +1,9 @@
+name: dotsquares
+channels:
+  - defaults
+dependencies:
+  - numpy
+  - python=3
+  - pytest
+  - hypothesis
+prefix: /Users/jimmy/dev/dotsquares/env
