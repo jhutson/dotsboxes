@@ -10,11 +10,16 @@
 #   H H H
 
 import numpy as np
+from typing import BinaryIO
 
 class Board:
-    def __init__(self, rows, columns):
-        self.lines = np.zeros((2 * rows + 1, columns + 1), dtype=np.byte)
-        self.boxes = np.zeros((rows, columns), dtype=np.byte)
+    def __init__(self, rows: int, columns: int):
+        if rows == 0 and columns == 0:
+            self.lines = None
+            self.boxes = None
+        else:
+            self.lines = np.zeros((2 * rows + 1, columns + 1), dtype=np.byte)
+            self.boxes = np.zeros((rows, columns), dtype=np.byte)
 
 
     def markLine(self, row: int, column: int, player: int):
@@ -68,3 +73,20 @@ class Board:
                         filled.append(box)
 
         return filled
+
+
+    def save(self, file: BinaryIO):
+        np.savez_compressed(file, lines=self.lines, boxes=self.boxes)
+
+
+    @classmethod
+    def load(cls, file: BinaryIO):
+        with np.load(file) as data:
+            if 'lines' in data.files and 'boxes' in data.files:
+                board = Board(0, 0)
+                board.lines = data['lines']
+                board.boxes = data['boxes']
+
+                return board
+
+        raise ValueError('Specified file does not contain a valid board state.')
