@@ -2,8 +2,8 @@ name: dotsquares
 channels:
   - defaults
 dependencies:
+  - hypothesis
+  - pytest
   - numpy
   - python=3
-  - pytest
-  - hypothesis
-
+  - pytest-cov
