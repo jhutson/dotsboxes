@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from setuptools import find_packages
 from setuptools import setup
 
 setup(
@@ -20,5 +19,6 @@ setup(
         'Topic :: Games/Entertainment'
     ],
     keywords='game dots squares',
+    install_requires=['numpy'],
     python_requires='>=3'
 )

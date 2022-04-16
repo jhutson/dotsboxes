@@ -22,14 +22,14 @@ class Board:
             self.boxes = np.zeros((rows, columns), dtype=np.byte)
 
 
-    def markLine(self, row: int, column: int, player: int):
+    def mark_line(self, row: int, column: int, player: int):
 
         if row % 2 == 0 and column >= self.lines.shape[1]:
             raise IndexError
 
         if self.lines[row, column] == 0:
             self.lines[row, column] = player
-            boxes = self.checkForFilledBoxes(row, column, player)
+            boxes = self.check_for_filled_boxes(row, column, player)
 
             for box in boxes:
                 self.boxes[box] = player
@@ -39,7 +39,7 @@ class Board:
         return None
 
 
-    def checkForFilledBoxes(self, lineRow: int, lineColumn: int, player: int):
+    def check_for_filled_boxes(self, lineRow: int, lineColumn: int, player: int):
         filled = []
 
         if lineRow % 2 == 0: # horizontal line
@@ -73,6 +73,17 @@ class Board:
                         filled.append(box)
 
         return filled
+
+
+    def has_open_boxes(self):
+        return not self.boxes.all()
+
+
+    def fill_count(self, player: int) -> int:
+        if player > 0:
+            return np.sum(self.boxes == player)
+
+        raise ValueError("player must be greater than zero.")
 
 
     def save(self, file: BinaryIO):
