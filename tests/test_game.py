@@ -17,7 +17,7 @@ def test_mark_line_twice_no_player_change():
 def test_mark_line_for_each_player():
     game = Game(Board(1, 1), 2)
     assert(game.mark_line(0, 0) == TurnResult(2, 1))
-    assert(game.mark_line(0, 1) == TurnResult(1, 2))
+    assert(game.mark_line(1, 0) == TurnResult(1, 2))
 
 
 def test_mark_line_box_filled_goes_again():
