@@ -24,7 +24,7 @@ class Board:
 
     def mark_line(self, row: int, column: int, player: int):
 
-        if row % 2 == 0 and column >= self.lines.shape[1]:
+        if row % 2 == 0 and column + 1 == self.lines.shape[1]:
             raise IndexError
 
         if self.lines[row, column] == 0:
@@ -79,6 +79,22 @@ class Board:
     def fill_count(self, player: int) -> int:
         if player > 0:
             return np.sum(self.boxes == player)
+
+        raise ValueError("player must be greater than zero.")
+
+    def filled_box_indices(self, player: int):
+        return self._get_indices(player, self.boxes)
+
+    def marked_line_indices(self, player: int):
+        return self._get_indices(player, self.lines)
+
+    def _get_indices(self, player: int, items: np.ndarray):
+        if player > 0:
+            indices = (items == player).nonzero()
+            row_indices = indices[0].tolist()
+            column_indices = indices[1].tolist()
+
+            return (row_indices, column_indices)
 
         raise ValueError("player must be greater than zero.")
 
