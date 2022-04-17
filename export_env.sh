@@ -1,1 +1,0 @@
-conda env export --name dotsquares -c conda-forge --from-history > e.yml && ((val=$(cat e.yml| wc -l) - 1)) && head -n $val e.yml > environment.yml; rm e.yml
