@@ -5,12 +5,13 @@
 # ex. 2 rows, 3 columns
 #   H H H
 #  V-V-V-V
-#   H H H 
+#   H H H
 #  V-V-V-V
 #   H H H
 
 import numpy as np
 from typing import BinaryIO
+
 
 class Board:
     def __init__(self, rows: int, columns: int):
@@ -20,7 +21,6 @@ class Board:
         else:
             self.lines = np.zeros((2 * rows + 1, columns + 1), dtype=np.byte)
             self.boxes = np.zeros((rows, columns), dtype=np.byte)
-
 
     def mark_line(self, row: int, column: int, player: int):
 
@@ -38,11 +38,10 @@ class Board:
 
         return None
 
-
     def check_for_filled_boxes(self, lineRow: int, lineColumn: int, player: int):
         filled = []
 
-        if lineRow % 2 == 0: # horizontal line
+        if lineRow % 2 == 0:  # horizontal line
             # check square above
             if lineRow > 0:
                 if self.lines[(lineRow - 2, lineColumn)] > 0:
@@ -57,7 +56,7 @@ class Board:
                         box = (lineRow // 2, lineColumn)
                         filled.append(box)
 
-        else: # vertical line
+        else:  # vertical line
             # check square to left
             if lineColumn > 0:
                 if self.lines[(lineRow, lineColumn - 1)] > 0:
@@ -74,10 +73,8 @@ class Board:
 
         return filled
 
-
     def has_open_boxes(self):
         return not self.boxes.all()
-
 
     def fill_count(self, player: int) -> int:
         if player > 0:
@@ -85,10 +82,8 @@ class Board:
 
         raise ValueError("player must be greater than zero.")
 
-
     def save(self, file: BinaryIO):
         np.savez_compressed(file, lines=self.lines, boxes=self.boxes)
-
 
     @classmethod
     def load(cls, file: BinaryIO):
@@ -100,4 +95,5 @@ class Board:
 
                 return board
 
-        raise ValueError('Specified file does not contain a valid board state.')
+        raise ValueError(
+            'Specified file does not contain a valid board state.')

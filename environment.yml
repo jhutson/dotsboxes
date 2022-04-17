@@ -7,3 +7,4 @@ dependencies:
   - numpy
   - python=3
   - pytest-cov
+  - autopep8

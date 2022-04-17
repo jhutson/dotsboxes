@@ -2,6 +2,7 @@ import pytest
 from dotsquares import Board
 from io import BytesIO
 
+
 @pytest.mark.parametrize("boxShape,expectedLineShape", [
     ((1, 1), (3, 2)),
     ((2, 3), (5, 4))
@@ -27,7 +28,7 @@ def test_make_square(index):
     assert(board.mark_line(*lines[0], 1) == [])
     assert(board.mark_line(*lines[1], 2) == [])
     assert(board.mark_line(*lines[2], 1) == [])
-    assert(board.mark_line(*lines[3], 2) == [(0,0)])
+    assert(board.mark_line(*lines[3], 2) == [(0, 0)])
 
 
 def test_make_two_squares_from_vertical_line():
@@ -82,9 +83,6 @@ def test_save_and_load_board():
     assert(board_two.lines[(3, 2)] == 1)
     assert(board_two.lines[(3, 3)] == 2)
     assert(board_two.lines[(4, 2)] == 1)
-    
+
     assert(board_two.boxes[(0, 0)] == 2)
     assert(board_two.boxes[(1, 2)] == 1)
-
-
-
