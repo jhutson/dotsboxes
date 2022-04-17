@@ -1,5 +1,6 @@
 name: dotsquares
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - hypothesis
@@ -8,3 +9,4 @@ dependencies:
   - python=3
   - pytest-cov
   - autopep8
+  - build
