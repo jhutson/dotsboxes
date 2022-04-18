@@ -42,14 +42,14 @@ class Board:
         filled = []
 
         if lineRow % 2 == 0:  # horizontal line
-            # check square above
+            # check box above
             if lineRow > 0:
                 if self.lines[(lineRow - 2, lineColumn)] > 0:
                     if self.lines[(lineRow - 1, lineColumn)] > 0 and self.lines[(lineRow - 1, lineColumn + 1)] > 0:
                         box = (lineRow // 2 - 1, lineColumn)
                         filled.append(box)
 
-            # check square below
+            # check box below
             if lineRow + 1 < self.lines.shape[0]:
                 if self.lines[(lineRow + 2, lineColumn)] > 0:
                     if self.lines[(lineRow + 1, lineColumn)] > 0 and self.lines[(lineRow + 1, lineColumn + 1)] > 0:
@@ -57,14 +57,14 @@ class Board:
                         filled.append(box)
 
         else:  # vertical line
-            # check square to left
+            # check box to left
             if lineColumn > 0:
                 if self.lines[(lineRow, lineColumn - 1)] > 0:
                     if self.lines[(lineRow - 1, lineColumn - 1)] > 0 and self.lines[(lineRow + 1, lineColumn - 1)] > 0:
                         box = ((lineRow - 1) // 2, lineColumn - 1)
                         filled.append(box)
 
-            # check square to right
+            # check box to right
             if lineColumn + 1 < self.lines.shape[1]:
                 if self.lines[(lineRow, lineColumn + 1)] > 0:
                     if self.lines[(lineRow - 1, lineColumn)] > 0 and self.lines[(lineRow + 1, lineColumn)] > 0:

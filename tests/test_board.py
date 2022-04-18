@@ -1,5 +1,5 @@
 import pytest
-from dotsquares import Board
+from dotsboxes import Board
 from io import BytesIO
 
 
@@ -16,7 +16,7 @@ def test_mark_line_past_row_raises():
     ((1, 1), (3, 2)),
     ((2, 3), (5, 4))
 ])
-def test_one_square_line_shape(boxShape, expectedLineShape):
+def test_one_box_line_shape(boxShape, expectedLineShape):
     board = Board(*boxShape)
     assert(board.lines.shape == expectedLineShape)
 
@@ -28,7 +28,7 @@ def test_line_marked_once():
 
 
 @pytest.mark.parametrize("index", [0, 1, 2, 3])
-def test_make_square(index):
+def test_make_box(index):
     lines = [(0, 0), (1, 1), (2, 0), (1, 0)]
     lines = lines[index:] + lines[:index]
 
@@ -40,7 +40,7 @@ def test_make_square(index):
     assert(board.mark_line(*lines[3], 2) == [(0, 0)])
 
 
-def test_make_two_squares_from_vertical_line():
+def test_make_two_boxes_from_vertical_line():
     board = Board(1, 2)
 
     player = 1
@@ -51,7 +51,7 @@ def test_make_two_squares_from_vertical_line():
     assert(board.mark_line(1, 1, player) == [(0, 0), (0, 1)])
 
 
-def test_make_two_squares_from_horizontal_line():
+def test_make_two_boxes_from_horizontal_line():
     board = Board(2, 1)
 
     player = 1

@@ -1,18 +1,18 @@
 #!/bin/bash
 set -e
 
-if ! [[ "$1" == '-u' && -d package/dotsquares ]] ; then
+if ! [[ "$1" == '-u' && -d package/dotsboxes ]] ; then
     source venv/bin/activate
     python -m build
 
     [ -d package ] && rm -Rf package
-    dots_package=$(find dist -name 'dotsquares-*.tar.gz')
+    dots_package=$(find dist -name 'dotsboxes-*.tar.gz')
     pip install -t package  --platform=manylinux2014_aarch64 --only-binary=:all: numpy
     pip install --no-deps -t package $dots_package
 fi
 
 cp src/lambda/dslambda.py package
 
-[ -f dist/lambda-dotsquares.zip ] && rm dist/lambda-dotsquares.zip
+[ -f dist/lambda-dotsboxes.zip ] && rm dist/lambda-dotsboxes.zip
 cd package
-zip -r ../dist/lambda-dotsquares.zip . -x "*/__pycache__/*"
+zip -r ../dist/lambda-dotsboxes.zip . -x "*/__pycache__/*"

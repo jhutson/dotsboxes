@@ -1,6 +1,6 @@
 import json
 
-from dotsquares import Board
+from dotsboxes import Board
 
 
 def handler(event, context):

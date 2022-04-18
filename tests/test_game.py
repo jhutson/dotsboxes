@@ -1,5 +1,5 @@
 import json
-from dotsquares import Board, Game, TurnResult
+from dotsboxes import Board, Game, TurnResult
 
 
 def test_mark_line_one():
