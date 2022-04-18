@@ -17,7 +17,10 @@ class TurnResult:
         return False
 
     def __str__(self) -> str:
-        return f'TurnResult(current_player={self.current_player}, last_player={self.last_player}, last_filled={self.last_filled})'
+        return (f'TurnResult(current_player={self.current_player}, '
+                f'last_player={self.last_player}, '
+                f'last_filled={self.last_filled})'
+                )
 
 
 class Game:
