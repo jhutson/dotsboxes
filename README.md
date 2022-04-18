@@ -1,6 +1,6 @@
 # Dots and Boxes Game (Backend)
 
-![continuous integration](https://github.com/jhutson/dotsboxes/actions/workflows/python-app.yml/badge.svg)
+[![Python CI](https://github.com/jhutson/dotsboxes/actions/workflows/python-app.yml/badge.svg)](https://github.com/jhutson/dotsboxes/actions/workflows/python-app.yml)
 
 This project is the (in-progress) backend for a version of the [Dots and Boxes game](https://en.wikipedia.org/wiki/Dots_and_Boxes). It is built as the implementation of an AWS Lambda function.
 
