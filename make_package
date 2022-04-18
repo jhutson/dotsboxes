@@ -11,7 +11,7 @@ if ! [[ "$1" == '-u' && -d package/dotsboxes ]] ; then
     pip install --no-deps -t package $dots_package
 fi
 
-cp src/lambda/dslambda.py package
+cp src/lambda/dblambda.py package
 
 [ -f dist/lambda-dotsboxes.zip ] && rm dist/lambda-dotsboxes.zip
 cd package

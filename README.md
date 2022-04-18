@@ -16,6 +16,6 @@ Once setup is done, run `tox` to execute tests.
 Run `pip install -e .` to install the dotsboxes module in development mode. This allows for running `pytest` directly for unit tests.
 
 ## Packaging
-Run `./make_package` to build a zip file used as the source of an AWS Lambda function.
+Run `./make_package` to build a zip file used as the source of an AWS Lambda function. It is placed in `dist/lambda-dotsboxes.zip`.
 
 **TODO:** Numpy is bundled with the rest of the code in the zip. This makes the file larger than it needs to be for incremental changes. This should be broken up into one zip with numpy, and another for the project code.  The numpy zip can be deployed as a lambda layer, keeping the project zip small.
