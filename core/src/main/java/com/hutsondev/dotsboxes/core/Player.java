@@ -12,4 +12,8 @@ public enum Player {
   Player(int index) {
     this.index = index;
   }
+
+  public Player other() {
+    return (this == Player.ONE) ? Player.TWO : Player.ONE;
+  }
 }

@@ -25,11 +25,11 @@ public class Board {
 
   public Board(int rowCount, int columnCount) {
     if (rowCount < 1) {
-      throw new IllegalArgumentException("Value for rowCount must be greater than zero.");
+      throw argumentException(ErrorMessages.ROW_COUNT_GREATER_THAN_ZERO);
     }
 
     if (columnCount < 1) {
-      throw new IllegalArgumentException("Value for columnCount must be greater than zero.");
+      throw argumentException(ErrorMessages.COLUMN_COUNT_GREATER_THAN_ZERO);
     }
 
     this.rowCount = rowCount;
@@ -42,7 +42,7 @@ public class Board {
     boxStates[0] = new BitSet(boxCount);
     boxStates[1] = new BitSet(boxCount);
 
-    final int lineCount = 2 * rowCount * columnCount + 2 * rowCount + columnCount + 1;
+    final int lineCount = 2 * rowCount * (columnCount + 1) + columnCount;
 
     lineStates = new BitSet[2];
     lineStates[0] = new BitSet(lineCount);
@@ -95,24 +95,22 @@ public class Board {
 
   private int getLineIndex(int row, int column) {
     if (row < 0) {
-      throw new IllegalArgumentException("Value for row must be greater than or equal to zero.");
+      throw argumentException(ErrorMessages.ROW_GREATER_THAN_ZERO);
     }
 
     if (column < 0) {
-      throw new IllegalArgumentException("Value for column must be greater than or equal to zero.");
+      throw argumentException(ErrorMessages.COLUMN_GREATER_THAN_ZERO);
     }
 
     if (column >= columnCount + row % 2) {
-      throw new IllegalArgumentException("Column exceeds maximum value for row.");
+      throw argumentException(ErrorMessages.COLUMN_EXCEEDS_MAXIMUM_FOR_ROW);
     }
 
-    int index = row * (columnCount + 1) + column;
-
-    if (index >= lineStates[0].size()) {
-      throw new IllegalArgumentException("Value for row exceeds maximum value.");
+    if (row > 2 * rowCount) {
+      throw argumentException(ErrorMessages.ROW_EXCEEDS_MAXIMUM);
     }
 
-    return index;
+    return row * columnSpan + column;
   }
 
   private void markBox(int boxIndex, Player player) {
@@ -128,8 +126,8 @@ public class Board {
     return lineStates[0].get(lineIndex) || lineStates[1].get(lineIndex);
   }
 
-  private boolean boxMarked(int index) {
-    return boxStates[0].get(index) || boxStates[1].get(index);
+  private boolean boxOpen(int index) {
+    return !boxStates[0].get(index) && !boxStates[1].get(index);
   }
 
   private List<Integer> checkForNewlyFilledBoxes(int row, int column, int lineIndex) {
@@ -155,7 +153,7 @@ public class Board {
           lineMarked(lineIndex + 2 * columnSpan)
       ) {
         final int boxIndex = getBoxIndex(boxRow, column);
-        if (!boxMarked(boxIndex)) {
+        if (boxOpen(boxIndex)) {
           bottomBox = boxIndex;
         }
       }
@@ -169,7 +167,7 @@ public class Board {
           lineMarked(lineIndex)
       ) {
         final int boxIndex = getBoxIndex(boxRow - 1, column);
-        if (!boxMarked(boxIndex)) {
+        if (boxOpen(boxIndex)) {
           if (bottomBox == -1) {
             return List.of(boxIndex);
           } else {
@@ -185,7 +183,6 @@ public class Board {
   private List<Integer> checkForNewlyFilledBoxesFromVerticalLine(int row, int column,
       int lineIndex) {
     final int boxRow = (row - 1) / 2;
-    final int columnSpan = columnCount + 1;
     int leftBox = -1;
 
     // check box left of line
@@ -196,7 +193,7 @@ public class Board {
           lineMarked(lineIndex + (columnSpan - 1))
       ) {
         final int boxIndex = getBoxIndex(boxRow, column - 1);
-        if (!boxMarked(boxIndex)) {
+        if (boxOpen(boxIndex)) {
           leftBox = boxIndex;
         }
       }
@@ -210,7 +207,7 @@ public class Board {
           lineMarked(lineIndex + columnSpan)
       ) {
         final int boxIndex = getBoxIndex(boxRow, column);
-        if (!boxMarked(boxIndex)) {
+        if (boxOpen(boxIndex)) {
           if (leftBox == -1) {
             return List.of(boxIndex);
           } else {
@@ -223,4 +220,7 @@ public class Board {
     return leftBox == -1 ? Collections.emptyList() : List.of(leftBox);
   }
 
+  private static IllegalArgumentException argumentException(ErrorMessages errorMessage) {
+    return new IllegalArgumentException(errorMessage.getMessage());
+  }
 }

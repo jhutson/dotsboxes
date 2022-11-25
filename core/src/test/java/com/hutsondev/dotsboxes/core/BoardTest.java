@@ -2,12 +2,14 @@ package com.hutsondev.dotsboxes.core;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Named.named;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +22,54 @@ class BoardTest {
   private void assertMarkResultNoneFilled(
       @SuppressWarnings("OptionalUsedAsFieldOrParameterType") Optional<List<Integer>> markResult) {
     assertThat(markResult).hasValue(Collections.emptyList());
+  }
+
+  @Test
+  void boardInitializedCorrectly() {
+    Random random = new Random();
+    int expectedRowCount = random.nextInt(1, 20);
+    int expectedColumnCount = random.nextInt(1, 20);
+
+    Board board = new Board(expectedRowCount, expectedColumnCount);
+    assertThat(board.getRowCount()).isEqualTo(expectedRowCount);
+    assertThat(board.getColumnCount()).isEqualTo(expectedColumnCount);
+    assertThat(board.hasOpenBoxes()).isTrue();
+  }
+
+  @Test
+  void rowCountToSmall() {
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> new Board(0, 1)
+    ).withMessage(ErrorMessages.ROW_COUNT_GREATER_THAN_ZERO.getMessage());
+  }
+
+  @Test
+  void columnCountToSmall() {
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> new Board(1, 0)
+    ).withMessage(ErrorMessages.COLUMN_COUNT_GREATER_THAN_ZERO.getMessage());
+  }
+
+  private static Stream<Arguments> outOfRangeLineArgumentsProvider() {
+    return Stream.of(
+        arguments(-1, 0, ErrorMessages.ROW_GREATER_THAN_ZERO),
+        arguments(0, -1, ErrorMessages.COLUMN_GREATER_THAN_ZERO),
+        arguments(0, 1, ErrorMessages.COLUMN_EXCEEDS_MAXIMUM_FOR_ROW),
+        arguments(1, 2, ErrorMessages.COLUMN_EXCEEDS_MAXIMUM_FOR_ROW),
+        arguments(2, 1, ErrorMessages.COLUMN_EXCEEDS_MAXIMUM_FOR_ROW),
+        arguments(3, 0, ErrorMessages.ROW_EXCEEDS_MAXIMUM)
+    );
+  }
+
+  @ParameterizedTest(name = "row {0}, column {1}")
+  @MethodSource("outOfRangeLineArgumentsProvider")
+  void outOfRangeLineArgument(int row, int column, ErrorMessages errorMessage) {
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> {
+          Board board = new Board(1, 1);
+          board.markLine(row, column, Player.ONE);
+        }
+    ).withMessage(errorMessage.getMessage());
   }
 
   @Test
@@ -92,11 +142,11 @@ class BoardTest {
     assertThat(moves).hasSize(7);
 
     Player firstPlayer = player;
-    Player secondPlayer = (firstPlayer == Player.ONE) ? Player.TWO : Player.ONE;
+    Player secondPlayer = firstPlayer.other();
 
     for (Position p : Arrays.copyOfRange(moves, 0, moves.length - 1)) {
       assertMarkResultNoneFilled(board.markLine(p.row(), p.column(), player));
-      player = (player == Player.ONE) ? Player.TWO : Player.ONE;
+      player = player.other();
     }
 
     Position lastMove = moves[moves.length - 1];
