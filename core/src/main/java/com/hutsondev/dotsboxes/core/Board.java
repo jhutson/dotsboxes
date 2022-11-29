@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 import lombok.Getter;
 
-public class Board {
+public class Board implements BoardView {
 
   @Getter
   private final int rowCount;

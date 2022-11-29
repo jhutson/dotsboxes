@@ -25,6 +25,10 @@ public class Game {
     this(new Board(rowCount, columnCount));
   }
 
+  public BoardView board() {
+    return board;
+  }
+
   public TurnResult markLine(int row, int column) {
     Player lastPlayer = currentPlayer;
 
