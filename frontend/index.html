@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Dots and Boxes</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .board-area {
+      --db-column-count: 1;
+      --db-row-count: 1;
+      --db-highlight-one: #5b81a9;
+      --db-highlight-two: #a9825b;
+
+      display: flex;
+      width: 98%;
+      aspect-ratio: var(--db-column-count) / var(--db-row-count);
+      justify-content: center;
+    }
+
+    .board {
+      --db-line-width: 10px;
+      --db-line-height: 10px;
+      --db-box-width: 2fr;
+      --db-box-height: 2fr;
+
+      flex-grow: 1;
+      display: grid;
+      grid-template-columns: repeat(var(--db-column-count), var(--db-line-width) var(--db-box-width)) var(--db-line-width);
+      grid-template-rows: repeat(var(--db-row-count), var(--db-line-height) var(--db-box-height)) var(--db-line-height);
+      place-items: center;
+    }
+
+    .d {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+
+    .lh {
+      width: 100%;
+      height: 100%;
+    }
+
+    .lv {
+      width: 100%;
+      height: 100%;
+    }
+
+    .b {
+      width: 100%;
+      height: 100%;
+    }
+
+    .lf1 {
+      // background-color: #933232;
+      background-color: #47729e;
+    }
+
+    .lf2 {
+      // background-color: #329332;
+      background-color: #9e7347;
+    }
+
+    .bf1 {
+      // background-color: #871b1b;
+      background-color: #326293;
+    }
+
+    .bf2 {
+      // background-color: #1b871b;
+      background-color: #936332;
+    }
+
+    @media (prefers-color-scheme: light) {
+      body {
+        background-color: white;
+      }
+
+      .d {
+        background-color: black;
+      }
+
+      div:is(.lh,.lv):not(.filled):hover {
+        background-color: #EEEEEE;
+      }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #0F0F0F;
+      }
+
+      .d {
+        background-color: #EEEEEE;
+      }
+
+      div:is(.lh,.lv):not(.filled):hover {
+        background-color: #282828;
+      }
+    }
+
+    div:is(.lh,.lv):not(.filled) {
+      cursor: pointer;
+    }
+
+    div:is(.lh,.lv):not(.filled):active {
+      background-color: var(--db-highlight)
+    }
+  </style>
+  <script type="application/javascript">
+    function initialize() {
+      boardArea = document.querySelector("div.board-area");
+      board = document.querySelector("div.board");
+      populateBoard(boardArea, board);
+    }
+
+    function populateBoard(boardArea, board) {
+      const rowCount = 10;
+      const columnCount = 10;
+      const player = 1;
+
+      boardArea.style.setProperty("--db-column-count", columnCount);
+      boardArea.style.setProperty("--db-row-count", rowCount);
+      boardArea.style.setProperty("--db-highlight",
+        player == 1 ? "var(--db-highlight-one)" : "var(--db-highlight-two)"
+      );
+
+      for (let row = 0; row < rowCount * 2 + 1; ++row) {
+        if (row % 2 == 0) {
+          populateHorizontalRow(board, player, row, columnCount);
+        } else {
+          populateVerticalRow(board, player, row, columnCount);
+        }
+      }
+
+      // Example of filling box
+      board.querySelector("div.b[data-row='3'][data-column='2']")
+        .classList.add("filled", player == 1 ? "bf1" : "bf2");
+
+      board.querySelector("div.b[data-row='1'][data-column='3']")
+        .classList.add("filled", player == 1 ? "bf2" : "bf1");
+    }
+
+    function populateHorizontalRow(board, player, row, columnCount) {
+      for (let column = 0; column < columnCount; column++) {
+        board.appendChild(createDot());
+        board.appendChild(createLine("lh", player, row, column));
+      }
+      board.appendChild(createDot());
+    }
+
+    function populateVerticalRow(board, player, row, columnCount) {
+      for (let column = 0; column < columnCount; column++) {
+        board.appendChild(createLine("lv", player, row, column));
+        board.appendChild(createBox(Math.floor(row / 2), column));
+      }
+      board.appendChild(createLine("lv", player, row, columnCount));
+    }
+
+    function createDot() {
+      return createDivWithClass("d");
+    }
+
+    function createBox(row, column) {
+      const box = createDivWithClass("b");
+      box.dataset.row = row;
+      box.dataset.column = column;
+      return box;
+    }
+
+    function createLine(lineTypeClass, player, row, column) {
+      const line = createDivWithClass(lineTypeClass);
+      line.addEventListener("pointerup", e => markLine(e, player, row, column));
+      return line;
+    }
+
+    function createDivWithClass(elementClass) {
+      const element = document.createElement("div");
+      element.classList.add(elementClass);
+      return element;
+    }
+
+    function markLine(event, player, row, column) {
+      const classes = event.currentTarget.classList;
+      if (classes.contains("filled")) {
+        classes.remove("filled", "lf1", "lf2");
+      } else {
+        const fillTypes = ["lf1", "lf2"];
+        let fillIndex = player - 1;
+
+        if (event.shiftKey) {
+          fillIndex = 1 - fillIndex;
+        }
+
+        const fillType = fillTypes[fillIndex];
+        classes.add("filled", fillType);
+      }
+    }
+  </script>
+</head>
+<body onload="initialize()">
+  <div class="board-area">
+    <div class="board"></div>
+  </div>
+</body>
+</html>
