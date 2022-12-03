@@ -24,6 +24,10 @@ public class Board implements BoardView {
   private int markedBoxCount;
 
   public Board(int rowCount, int columnCount) {
+    this(rowCount, columnCount, null);
+  }
+
+  public Board(int rowCount, int columnCount, BoardBuilder builder) {
     if (rowCount < 1) {
       throw argumentException(ErrorMessages.ROW_COUNT_GREATER_THAN_ZERO);
     }
@@ -36,17 +40,51 @@ public class Board implements BoardView {
     this.columnCount = columnCount;
     this.columnSpan = columnCount + 1;
 
-    boxCount = rowCount * columnCount;
-
+    this.boxCount = rowCount * columnCount;
     boxStates = new BitSet[2];
-    boxStates[0] = new BitSet(boxCount);
-    boxStates[1] = new BitSet(boxCount);
+
+    if (builder == null ||
+        (builder.getPlayerOneBoxes() == null && builder.getPlayerTwoBoxes() == null)) {
+      boxStates[0] = new BitSet(boxCount);
+      boxStates[1] = new BitSet(boxCount);
+    } else {
+      boxStates[0] = getBitset(boxCount, builder.getPlayerOneBoxes());
+      boxStates[1] = getBitset(boxCount, builder.getPlayerTwoBoxes());
+
+      this.markedBoxCount = filledBoxCount(Player.ONE) + filledBoxCount(Player.TWO);
+    }
 
     final int lineCount = 2 * rowCount * (columnCount + 1) + columnCount;
-
     lineStates = new BitSet[2];
-    lineStates[0] = new BitSet(lineCount);
-    lineStates[1] = new BitSet(lineCount);
+
+    if (builder == null ||
+        (builder.getPlayerOneLines() == null && builder.getPlayerTwoLines() == null)) {
+      lineStates[0] = new BitSet(lineCount);
+      lineStates[1] = new BitSet(lineCount);
+    } else {
+      lineStates[0] = getBitset(lineCount, builder.getPlayerOneLines());
+      lineStates[1] = getBitset(lineCount, builder.getPlayerTwoLines());
+    }
+  }
+
+  private static BitSet getBitset(int bitCount, BitSet existing) {
+    if (existing == null) {
+      return new BitSet(bitCount);
+
+    } else {
+      int existingSize = existing.size();
+      if (existingSize == bitCount) {
+        return existing;
+
+      } else if (existingSize < bitCount) {
+        BitSet bitset = new BitSet(bitCount);
+        bitset.or(existing);
+        return bitset;
+
+      } else {
+        throw argumentException(ErrorMessages.BITSET_SIZE_TOO_LARGE);
+      }
+    }
   }
 
   public Optional<List<Integer>> markLine(int row, int column, Player player) {
@@ -91,6 +129,21 @@ public class Board implements BoardView {
         index -> index >= 0,
         index -> bitSet.nextSetBit(index + 1)
     );
+  }
+
+  @Override
+  public byte[] getLineState(Player player) {
+    return lineStates[player.getIndex()].toByteArray();
+  }
+
+  @Override
+  public byte[] getBoxState(Player player) {
+    return boxStates[player.getIndex()].toByteArray();
+  }
+
+  @Override
+  public long[] getLineStateLongs(Player player) {
+    return lineStates[player.getIndex()].toLongArray();
   }
 
   private int getLineIndex(int row, int column) {

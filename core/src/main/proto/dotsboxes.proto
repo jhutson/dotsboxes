@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package dots_boxes_game;
+
+option java_multiple_files = true;
+option java_package = "com.hutsondev.dotsboxes.proto";
+option java_outer_classname = "Messages";
+
+message BoardState {
+  int32 row_count = 1;
+  int32 column_count = 2;
+  bytes player_one_lines = 3;
+  bytes player_two_lines = 4;
+  bytes player_one_boxes = 5;
+  bytes player_two_boxes = 6;
+}
+
+message GameState {
+  BoardState board = 1;
+  int32 current_player = 2;
+}

@@ -13,4 +13,9 @@ public interface BoardView {
   int filledBoxCount(Player player);
   IntStream getMarkedLines(Player player);
   IntStream getFilledBoxes(Player player);
+
+  byte[] getLineState(Player player);
+  byte[] getBoxState(Player player);
+
+  long[] getLineStateLongs(Player player);
 }

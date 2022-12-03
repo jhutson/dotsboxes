@@ -7,9 +7,10 @@
  */
 
 plugins {
-    id "io.freefair.lombok" version "6.5.1"
+    id 'io.freefair.lombok' version '6.5.1'
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id "com.google.protobuf" version "0.9.1"
 }
 
 group = 'com.hutsondev'
@@ -22,6 +23,9 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.google.protobuf:protobuf-java:3.21.10'
+    implementation 'com.google.protobuf:protobuf-java-util:3.21.10'
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
 
@@ -35,5 +39,11 @@ dependencies {
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.21.10'
+    }
 }
 
