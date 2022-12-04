@@ -19,3 +19,41 @@ message GameState {
   BoardState board = 1;
   int32 current_player = 2;
 }
+
+message GameOutcome {
+  int32 player_one_score = 1;
+  int32 player_two_score = 2;
+}
+
+message CreateGameRequest {
+  int32 row_count = 1;
+  int32 column_count = 2;
+  string player_one_id = 3;
+  string player_two_id = 4;
+}
+
+message CreateGameResponse {
+  string uuid = 1;
+  GameState game = 2;
+}
+
+message GetGameRequest {
+  string uuid = 1;
+  string player_id = 2;
+}
+
+message GetGameResponse {
+  GameState game = 1;
+}
+
+message TurnRequest {
+  string uuid = 1;
+  string player_id = 2;
+  int32 row = 3;
+  int32 column = 4;
+}
+
+message TurnResponse {
+  bool can_take_turn = 1;
+  optional GameOutcome outcome = 2;
+}

@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.5'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id "io.freefair.lombok" version "6.5.1"
+	id "de.undercouch.download" version "5.3.0"
 	id 'java'
 }
 
@@ -31,4 +32,27 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+task copyProtoFile(type: Copy) {
+	var sourceDir = 'src/main/proto'
+	var sourceFile = 'dotsboxes.proto'
+
+	from project(':core').fileTree(sourceDir)
+	include sourceFile
+	into('build/resources/main/static')
+
+	if (inputs.sourceFiles.empty) {
+		throw new GradleException("File not found: $sourceFile in project core under $sourceDir.")
+	}
+}
+
+task downloadJavascriptModules(type: Download) {
+	src 'https://cdn.jsdelivr.net/npm/protobufjs@7.1.2/dist/protobuf.js'
+	dest 'build/resources/main/static/modules'
+	overwrite false
+}
+
+processResources.configure {
+	dependsOn copyProtoFile, downloadJavascriptModules
 }

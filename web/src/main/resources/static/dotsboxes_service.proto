@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package dots_boxes_game;
+
+import "dotsboxes.proto";
+
+service GameService {
+  rpc Create (CreateGameRequest) returns (CreateGameResponse);
+  rpc Get (GetGameRequest) returns (GetGameResponse);
+  rpc MarkLine (TurnRequest) returns (TurnResponse);
+}
