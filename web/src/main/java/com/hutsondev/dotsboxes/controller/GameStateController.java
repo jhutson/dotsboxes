@@ -1,6 +1,5 @@
 package com.hutsondev.dotsboxes.controller;
 
-import com.hutsondev.dotsboxes.core.Board;
 import com.hutsondev.dotsboxes.core.BoardView;
 import com.hutsondev.dotsboxes.core.Game;
 import com.hutsondev.dotsboxes.core.Outcome;
@@ -28,6 +27,8 @@ public class GameStateController {
   public static final String PROTOBUF_MEDIA_TYPE = "application/x-protobuf;charset=UTF-8";
 
   private static Game CURRENT_GAME = null;
+  private static String PLAYER_ONE_ID = null;
+  private static String PLAYER_TWO_ID = null;
   private static final String GAME_ID = "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B";
 
   private Game getCurrentGame(String gameId) {
@@ -38,16 +39,17 @@ public class GameStateController {
     throw new ResponseStatusException(HttpStatus.NOT_FOUND);
   }
 
-  private Game getSampleGame() {
-    Board board = new Board(12, 12);
-    final int lineRowCount = board.getRowCount() * 2;
-
-    for (int row = 0; row < lineRowCount; row++) {
-      board.markLine(row, 0, Player.ONE);
-      board.markLine(row, 1, Player.TWO);
+  private void checkCurrentPlayer(Game game, String playerId) {
+    if (!(game.getCurrentPlayer() == Player.ONE && PLAYER_ONE_ID.equals(playerId)) &&
+        !(game.getCurrentPlayer() == Player.TWO && PLAYER_TWO_ID.equals(playerId))) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not this player's turn.");
     }
+  }
 
-    return new Game(board);
+  private void validatePlayer(Game game, String playerId) {
+    if (!(PLAYER_ONE_ID.equals(playerId) || PLAYER_TWO_ID.equals(playerId))) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Player ID does not represent a player in this game.");
+    }
   }
 
   @PostMapping(value = "/create",
@@ -56,15 +58,9 @@ public class GameStateController {
   CreateGameResponse createGame(@RequestBody CreateGameRequest request) {
     Game game = new Game(request.getRowCount(), request.getColumnCount());
 
-    BoardView board = game.board();
-    if (board.getColumnCount() >= 4 && board.getRowCount() >= 4) {
-      game.markLine(2, 1); // one
-      game.markLine(3, 2); // two
-      game.markLine(4, 1); // one
-      game.markLine(3, 1); // two, go again, box 5 filled
-    }
-
     CURRENT_GAME = game;
+    PLAYER_ONE_ID = request.getPlayerOneId();
+    PLAYER_TWO_ID = request.getPlayerTwoId();
 
     return CreateGameResponse.newBuilder()
         .setGame(StateConverter.toGameState(game))
@@ -77,6 +73,7 @@ public class GameStateController {
       produces = PROTOBUF_MEDIA_TYPE)
   GetGameResponse getGame(@RequestBody GetGameRequest request) {
     Game game = getCurrentGame(request.getUuid());
+    validatePlayer(game, request.getPlayerId());
 
     return GetGameResponse.newBuilder()
         .setGame(StateConverter.toGameState(game))
@@ -88,6 +85,8 @@ public class GameStateController {
       produces = PROTOBUF_MEDIA_TYPE)
   TurnResponse markLine(@RequestBody TurnRequest request) {
     Game game = getCurrentGame(request.getUuid());
+    checkCurrentPlayer(game, request.getPlayerId());
+
     TurnResult turnResult;
 
     try {

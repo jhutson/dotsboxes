@@ -3,17 +3,29 @@ import { getGameClient } from './game-client.js';
 const filledLineStyles = [null, 'lf1', 'lf2'];
 const filledBoxStyles = [null, 'bf1', 'bf2'];
 
+function getCurrentPlayer() {
+  const hash = window.location.hash;
+  if (hash.length == 0) {
+    return "p1";
+  } else {
+    const playerId = hash.substring(1);
+    return playerId;
+  }
+}
+
 async function populateBoard(boardArea, board) {
   const gameClient = await getGameClient();
+  const playerId = getCurrentPlayer();
+
   let gameState = null;
 
   try {
-    gameState = await gameClient.getGame("A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B");
+    gameState = await gameClient.getGame("A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B", playerId);
   } catch (error) {
     console.log(error);
 
     if (error.message.indexOf("404") >= 0) {
-      gameState = await gameClient.createGame(4, 4);
+      gameState = await gameClient.createGame(4, 4, "p1", "p2", playerId === "p1");
     } else {
       return;
     }
@@ -22,7 +34,7 @@ async function populateBoard(boardArea, board) {
   const boardState = gameState.board;
   const rowCount = boardState.rowCount;
   const columnCount = boardState.columnCount;
-  const player = gameState.currentPlayer;
+  const player = playerId === "p1" ? 1 : 2;
 
   boardArea.style.setProperty("--db-column-count", columnCount);
   boardArea.style.setProperty("--db-row-count", rowCount);
@@ -97,17 +109,11 @@ function createDivWithClass(elementClass) {
 async function markLine(event, player, row, column) {
   const classes = event.currentTarget.classList;
   if (!classes.contains("filled")) {
-    let playerIndex = player;
-
-    if (event.shiftKey) {
-      playerIndex = 3 - fillIndex;
-    }
-
     const gameClient = await getGameClient();
     const turnResult = await gameClient.markLine(row, column);
     console.log(turnResult);
 
-    const lineFillStyle = filledLineStyles[playerIndex];
+    const lineFillStyle = filledLineStyles[player];
     classes.add("filled", lineFillStyle);
   }
 }

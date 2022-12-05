@@ -1,6 +1,6 @@
 import * as protobuf from "./protobuf.js";
 
-const serviceBaseUrl = "/api/v1/game"
+const serviceBaseUrl = "/api/v1/game";
 
 function getProtobuf() {
   return window.protobuf ? window.protobuf : protobuf;
@@ -51,9 +51,10 @@ class BoardView {
 }
 
 class GameClient {
+  #gameId;
+  #playerId;
   #protoRoot;
   #service;
-  #gameId;
 
   constructor(protoRoot) {
     this.#protoRoot = protoRoot;
@@ -69,31 +70,37 @@ class GameClient {
     };
   }
 
-  async createGame(rowCount, columnCount) {
+  async createGame(rowCount, columnCount, playerOneId, playerTwoId, currentIsPlayerOne) {
     const result = await this.#service.create({
       rowCount: rowCount,
       columnCount: columnCount,
-      playerOneId: "p1",
-      playerTwoId: "p2"});
+      playerOneId: playerOneId,
+      playerTwoId: playerTwoId});
 
+    this.#playerId = currentIsPlayerOne ? playerOneId : playerTwoId;
     this.#gameId = result.uuid;
     return this.#gameFromGameState(result.game);
   }
 
-  async getGame(gameId) {
+  async getGame(gameId, playerId) {
     const result = await this.#service.get({
       uuid: gameId,
-      playerId: "p1"});
+      playerId: playerId});
 
+    this.#playerId = playerId;
     this.#gameId = gameId;
     return this.#gameFromGameState(result.game);
   }
 
+  getPlayer() {
+    return this.#playerId;
+  }
+
   async markLine(row, column) {
-    console.log(`gameId=${this.#gameId}`);
+    console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}`);
     const result = await this.#service.markLine({
       uuid: this.#gameId,
-      playerId: "todo",
+      playerId: this.#playerId,
       row: row,
       column: column});
 
