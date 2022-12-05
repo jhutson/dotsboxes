@@ -55,5 +55,6 @@ message TurnRequest {
 
 message TurnResponse {
   bool can_take_turn = 1;
-  optional GameOutcome outcome = 2;
+  repeated int32 filled_boxes = 2;
+  optional GameOutcome outcome = 3;
 }

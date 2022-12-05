@@ -23,17 +23,14 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:3.21.10'
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    api 'com.google.protobuf:protobuf-java:3.21.10'
+
+    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
     implementation 'com.google.protobuf:protobuf-java-util:3.21.10'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
-
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    // api 'org.apache.commons:commons-math3:3.6.1'
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    // implementation 'com.google.guava:guava:31.0.1-jre'
 }
 
 tasks.named('test') {

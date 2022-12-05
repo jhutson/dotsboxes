@@ -7,6 +7,7 @@ import com.hutsondev.dotsboxes.core.Board;
 import com.hutsondev.dotsboxes.core.BoardBuilder;
 import com.hutsondev.dotsboxes.core.BoardView;
 import com.hutsondev.dotsboxes.core.Game;
+import com.hutsondev.dotsboxes.core.Outcome;
 import com.hutsondev.dotsboxes.core.Player;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -49,6 +50,13 @@ public class StateConverter {
         toBoard(gameState.getBoard()),
         gameState.getCurrentPlayer() == 0 ? Player.ONE : Player.TWO
     );
+  }
+
+  public static GameOutcome toGameOutcome(@NonNull Outcome outcome) {
+    return GameOutcome.newBuilder()
+        .setPlayerOneScore(outcome.playerOneScore())
+        .setPlayerTwoScore(outcome.playerTwoScore())
+        .build();
   }
 
   public static void write(@NonNull Message message, @NonNull OutputStream output)
