@@ -66,6 +66,10 @@ bootJarMainClassName.configure {
 	dependsOn addExternalFilesToResources
 }
 
+bootRunMainClassName.configure {
+	dependsOn addExternalFilesToResources
+}
+
 compileTestJava.configure {
 	dependsOn addExternalFilesToResources
 }

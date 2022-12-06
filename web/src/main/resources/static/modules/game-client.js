@@ -1,6 +1,7 @@
 import * as protobuf from "./protobuf.js";
 
 const serviceBaseUrl = "/api/v1/game";
+const eventsBaseUrl = 'events/v1/game';
 
 function getProtobuf() {
   return window.protobuf ? window.protobuf : protobuf;
@@ -55,19 +56,82 @@ class GameClient {
   #playerId;
   #protoRoot;
   #service;
+  #turnResponseType;
+  #webSocket;
 
   constructor(protoRoot) {
     this.#protoRoot = protoRoot;
 
     const serviceFactory = protoRoot.lookup("dots_boxes_game.GameService");
-    this.#service = serviceFactory.create(fetchRpc, false, false);
+    this.#service = serviceFactory.create(this.#fetchRpc, false, false);
+    this.#turnResponseType = protoRoot.lookupType("dots_boxes_game.TurnResponse");
+  }
+
+  getPlayer() {
+    return this.#playerId;
+  }
+
+  async getGame(gameId, playerId) {
+    const result = await this.#service.get({
+      uuid: gameId,
+      playerId: playerId});
+
+    this.#playerId = playerId;
+    this.#gameId = gameId;
+    this.#connectGameEvents(this.#gameId);
+    return this.#gameFromGameState(result.game);
+  }
+
+  async markLine(row, column) {
+    console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}`);
+    const result = await this.#service.markLine({
+      uuid: this.#gameId,
+      playerId: this.#playerId,
+      row: row,
+      column: column});
+    console.log(result);
+
+    return result;
   }
 
   #gameFromGameState(gameState) {
     return {
-      currentPlayer: gameState.currentPlayer + 1,
+      currentPlayer: gameState.currentPlayer,
       board: new BoardView(gameState)
     };
+  }
+
+  #connectGameEvents(gameId) {
+    const eventsUrl = `ws://${window.location.host}/${eventsBaseUrl}/${gameId}`;
+
+    if (this.#webSocket) {
+      this.#webSocket.close();
+      this.#webSocket.onmessage = null;
+      this.#webSocket.onerror = null;
+      this.#webSocket.onopen = null;
+      this.#webSocket.onclose = null;
+      this.#webSocket = null;
+    }
+    this.#webSocket = new WebSocket(eventsUrl);
+    this.#webSocket.binaryType = "arraybuffer";
+    this.#webSocket.onmessage = this.#onMessage.bind(this);
+
+    const logEvents = message => event => {
+      console.log(`ws: ${message}`);
+      console.log(event);
+    };
+
+    this.#webSocket.onerror = logEvents("received error");
+    this.#webSocket.onopen = logEvents("opened");
+    this.#webSocket.onclose = logEvents("closed");
+  }
+
+  #onMessage(eventMessage) {
+    console.log("ws: received message");
+    const buffer = new Uint8Array(eventMessage.data);
+    const turnResponse = this.#turnResponseType.decode(buffer);
+
+    console.log(turnResponse);
   }
 
   async createGame(rowCount, columnCount, playerOneId, playerTwoId, currentIsPlayerOne) {
@@ -79,34 +143,37 @@ class GameClient {
 
     this.#playerId = currentIsPlayerOne ? playerOneId : playerTwoId;
     this.#gameId = result.uuid;
+    this.#connectGameEvents(this.#gameId);
     return this.#gameFromGameState(result.game);
   }
 
-  async getGame(gameId, playerId) {
-    const result = await this.#service.get({
-      uuid: gameId,
-      playerId: playerId});
+  #fetchRpc(method, requestData, callback) {
+    console.log(method)
 
-    this.#playerId = playerId;
-    this.#gameId = gameId;
-    return this.#gameFromGameState(result.game);
-  }
-
-  getPlayer() {
-    return this.#playerId;
-  }
-
-  async markLine(row, column) {
-    console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}`);
-    const result = await this.#service.markLine({
-      uuid: this.#gameId,
-      playerId: this.#playerId,
-      row: row,
-      column: column});
-
-    return result;
+    const serviceUrl = `${serviceBaseUrl}/${method.name.toLowerCase()}`;
+    fetch(serviceUrl, {
+      method: "POST",
+      mode: "same-origin",
+      cache: "no-cache",
+      headers: {
+        "Accept": "application/x-protobuf;charset=UTF-8",
+        "Content-Type": "application/x-protobuf;charset=UTF-8"
+      },
+      body: requestData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`Game client network request failed with HTTP status ${response.status}.`);
+      }
+      return response.arrayBuffer();
+    })
+    .then(arrayBufferResponse => {
+      callback(null, new Uint8Array(arrayBufferResponse))
+    })
+    .catch(error => callback(error, null));
   }
 }
+
 let gameClient = null;
 
 export async function getGameClient() {
@@ -116,33 +183,6 @@ export async function getGameClient() {
     gameClient = new GameClient(await loadProtoFiles());
     return gameClient;
   }
-}
-
-function fetchRpc(method, requestData, callback) {
-  console.log(method)
-  console.log(requestData)
-
-  const serviceUrl = `${serviceBaseUrl}/${method.name.toLowerCase()}`;
-  fetch(serviceUrl, {
-    method: "POST",
-    mode: "same-origin",
-    cache: "no-cache",
-    headers: {
-      "Accept": "application/x-protobuf;charset=UTF-8",
-      "Content-Type": "application/x-protobuf;charset=UTF-8"
-    },
-    body: requestData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Game client network request failed with HTTP status ${response.status}.`);
-    }
-    return response.arrayBuffer();
-  })
-  .then(arrayBufferResponse => {
-    callback(null, new Uint8Array(arrayBufferResponse))
-  })
-  .catch(error => callback(error, null));
 }
 
 async function loadProtoFiles() {

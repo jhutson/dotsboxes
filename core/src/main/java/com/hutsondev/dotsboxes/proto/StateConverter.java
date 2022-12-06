@@ -59,10 +59,14 @@ public class StateConverter {
         .build();
   }
 
-  public static void write(@NonNull Message message, @NonNull OutputStream output)
-      throws IOException {
+  public static void write(@NonNull Message message, @NonNull OutputStream output) {
     CodedOutputStream codedOutputStream = CodedOutputStream.newInstance(output);
-    message.writeTo(codedOutputStream);
-    codedOutputStream.flush();
+
+    try {
+      message.writeTo(codedOutputStream);
+      codedOutputStream.flush();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

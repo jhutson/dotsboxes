@@ -1,10 +1,10 @@
 package com.hutsondev.dotsboxes.controller;
 
-import com.hutsondev.dotsboxes.core.BoardView;
 import com.hutsondev.dotsboxes.core.Game;
 import com.hutsondev.dotsboxes.core.Outcome;
 import com.hutsondev.dotsboxes.core.Player;
 import com.hutsondev.dotsboxes.core.TurnResult;
+import com.hutsondev.dotsboxes.events.GameEventPublisher;
 import com.hutsondev.dotsboxes.proto.CreateGameRequest;
 import com.hutsondev.dotsboxes.proto.CreateGameResponse;
 import com.hutsondev.dotsboxes.proto.GetGameRequest;
@@ -13,6 +13,7 @@ import com.hutsondev.dotsboxes.proto.StateConverter;
 import com.hutsondev.dotsboxes.proto.TurnRequest;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,9 @@ public class GameStateController {
   private static String PLAYER_TWO_ID = null;
   private static final String GAME_ID = "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B";
 
+  @Autowired
+  private GameEventPublisher gameEventPublisher;
+
   private Game getCurrentGame(String gameId) {
     if (GAME_ID.equalsIgnoreCase(gameId) && CURRENT_GAME != null) {
       return CURRENT_GAME;
@@ -39,16 +43,17 @@ public class GameStateController {
     throw new ResponseStatusException(HttpStatus.NOT_FOUND);
   }
 
-  private void checkCurrentPlayer(Game game, String playerId) {
-    if (!(game.getCurrentPlayer() == Player.ONE && PLAYER_ONE_ID.equals(playerId)) &&
-        !(game.getCurrentPlayer() == Player.TWO && PLAYER_TWO_ID.equals(playerId))) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Not this player's turn.");
+  private boolean isPlayerTurn(Game game, String playerId) {
+    if (game.getCurrentPlayer() == Player.ONE && PLAYER_ONE_ID.equals(playerId)) {
+      return true;
     }
+    return game.getCurrentPlayer() == Player.TWO && PLAYER_TWO_ID.equals(playerId);
   }
 
   private void validatePlayer(Game game, String playerId) {
     if (!(PLAYER_ONE_ID.equals(playerId) || PLAYER_TWO_ID.equals(playerId))) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Player ID does not represent a player in this game.");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "Player ID does not represent a player in this game.");
     }
   }
 
@@ -85,7 +90,10 @@ public class GameStateController {
       produces = PROTOBUF_MEDIA_TYPE)
   TurnResponse markLine(@RequestBody TurnRequest request) {
     Game game = getCurrentGame(request.getUuid());
-    checkCurrentPlayer(game, request.getPlayerId());
+
+    if (!isPlayerTurn(game, request.getPlayerId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
 
     TurnResult turnResult;
 
@@ -95,8 +103,14 @@ public class GameStateController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null, e);
     }
 
+    if (turnResult.filledBoxes().isEmpty()
+        && turnResult.lastPlayer() == turnResult.currentPlayer()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+
     TurnResponse.Builder builder = TurnResponse.newBuilder()
-        .setCanTakeTurn(turnResult.lastPlayer() == turnResult.currentPlayer());
+        .setLastPlayer(turnResult.lastPlayer().getIndex())
+        .setCurrentPlayer(turnResult.currentPlayer().getIndex());
 
     if (turnResult.filledBoxes().isPresent()) {
       builder.addAllFilledBoxes(turnResult.filledBoxes().get());
@@ -107,6 +121,8 @@ public class GameStateController {
       builder.setOutcome(StateConverter.toGameOutcome(maybeOutcome.get()));
     }
 
-    return builder.build();
+    TurnResponse turnResponse = builder.build();
+    gameEventPublisher.publishTurn(turnResponse);
+    return turnResponse;
   }
 }

@@ -111,7 +111,6 @@ async function markLine(event, player, row, column) {
   if (!classes.contains("filled")) {
     const gameClient = await getGameClient();
     const turnResult = await gameClient.markLine(row, column);
-    console.log(turnResult);
 
     const lineFillStyle = filledLineStyles[player];
     classes.add("filled", lineFillStyle);

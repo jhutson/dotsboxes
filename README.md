@@ -1,4 +1,4 @@
-# Dots and Boxes Game (Backend)
+# Dots and Boxes Game
 
 [![Java CI](https://github.com/jhutson/dotsboxes/actions/workflows/ci.yml/badge.svg?event=push)](https://github.com/jhutson/dotsboxes/actions/workflows/ci.yml)
 
