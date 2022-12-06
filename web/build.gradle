@@ -35,8 +35,6 @@ tasks.named('test') {
 }
 
 task copyProtoFile(type: Copy) {
-	mustRunAfter 'processResources', 'bootJar', 'jar', 'test'
-
 	var sourceDir = 'src/main/proto'
 	var sourceFile = 'dotsboxes.proto'
 
@@ -50,13 +48,28 @@ task copyProtoFile(type: Copy) {
 }
 
 task downloadJavascriptModules(type: Download) {
-	mustRunAfter 'processResources', 'bootJar', 'jar', 'test'
-
 	src 'https://cdn.jsdelivr.net/npm/protobufjs@7.1.2/dist/protobuf.js'
 	dest 'build/resources/main/static/modules'
 	overwrite false
 }
 
-build.configure {
+task addExternalFilesToResources() {
+	mustRunAfter 'processResources'
 	dependsOn copyProtoFile, downloadJavascriptModules
+}
+
+bootJar.configure {
+	dependsOn addExternalFilesToResources
+}
+
+bootJarMainClassName.configure {
+	dependsOn addExternalFilesToResources
+}
+
+compileTestJava.configure {
+	dependsOn addExternalFilesToResources
+}
+
+jar.configure {
+	dependsOn addExternalFilesToResources
 }
