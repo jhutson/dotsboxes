@@ -179,7 +179,7 @@ class GameClient {
   }
 
   #fetchRpc(method, requestData, callback) {
-    console.log(method)
+    console.log(`Invoking service method ${method.name}.`);
 
     const serviceUrl = `${serviceBaseUrl}/${method.name.toLowerCase()}`;
     fetch(serviceUrl, {

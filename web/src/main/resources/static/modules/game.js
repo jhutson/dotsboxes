@@ -144,7 +144,7 @@ async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
     return await gameClient.getGame(gameId, playerId);
   } catch (error) {
     if (error.message.indexOf("404") >= 0) {
-      return await gameClient.createGame(2, 2, playerOneId, playerTwoId, playerId);
+      return await gameClient.createGame(1, 1, playerOneId, playerTwoId, playerId);
     } else {
       console.log(error);
       throw error;
