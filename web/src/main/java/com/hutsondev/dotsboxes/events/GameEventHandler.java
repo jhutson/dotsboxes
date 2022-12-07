@@ -46,7 +46,7 @@ public class GameEventHandler implements WebSocketHandler {
     Optional<String> maybeGameId = getGameIdFromPath(session.getHandshakeInfo().getUri().getPath());
 
     if (maybeGameId.isEmpty()) {
-      logger.debug("[{}]closing session due t o missing game ID", sessionId);
+      logger.debug("[{}] closing session due to missing game ID", sessionId);
       return session.close(CloseStatus.POLICY_VIOLATION);
     }
 
