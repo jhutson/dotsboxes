@@ -1,126 +1,166 @@
 import { getGameClient } from './game-client.js';
 
-const filledLineStyles = [null, 'lf1', 'lf2'];
-const filledBoxStyles = [null, 'bf1', 'bf2'];
+const FILLED_LINE_STYLES = [null, 'lf1', 'lf2'];
+const FILLED_BOX_STYLES = [null, 'bf1', 'bf2'];
 
-function getCurrentPlayer() {
+class BoardUIBuilder {
+  boardState;
+  playerIndex;
+  boardArea;
+  board;
+
+  constructor(gameState, boardArea, board) {
+    this.boardState = gameState.board;
+    this.playerIndex = gameState.playerIndex;
+    this.boardArea = boardArea;
+    this.board = board;
+  }
+
+  build() {
+    const rowCount = this.boardState.rowCount;
+    const columnCount = this.boardState.columnCount;
+
+    this.boardArea.style.setProperty("--db-column-count", columnCount);
+    this.boardArea.style.setProperty("--db-row-count", rowCount);
+    this.boardArea.style.setProperty("--db-highlight",
+      this.playerIndex == 0 ? "var(--db-highlight-one)" : "var(--db-highlight-two)"
+    );
+
+    for (let row = 0; row < rowCount * 2 + 1; ++row) {
+      if (row % 2 == 0) {
+        this.#populateHorizontalRow(row);
+      } else {
+        this.#populateVerticalRow(row);
+      }
+    }
+  }
+
+  #populateHorizontalRow(row) {
+    for (let column = 0; column < this.boardState.columnCount; column++) {
+      this.board.appendChild(this.#createDot());
+      this.board.appendChild(this.#createLine("lh", row, column));
+    }
+    this.board.appendChild(this.#createDot());
+  }
+
+  #populateVerticalRow(row) {
+    for (let column = 0; column < this.boardState.columnCount; column++) {
+      this.board.appendChild(this.#createLine("lv", row, column));
+      this.board.appendChild(this.#createBox(Math.floor(row / 2), column));
+    }
+    this.board.appendChild(this.#createLine("lv", row, this.boardState.columnCount));
+  }
+
+  #createDot() {
+    return this.#createDivWithClass("d");
+  }
+
+  #createBox(row, column) {
+    const box = this.#createDivWithClass("b");
+
+    const boxFillStyle = FILLED_BOX_STYLES[this.boardState.boxFilled(row, column)];
+    if (boxFillStyle) {
+      box.classList.add("filled", boxFillStyle);
+    } else {
+        box.dataset.boxIndex = this.boardState.getBoxIndex(row, column);
+    }
+
+    return box;
+  }
+
+  #createLine(lineTypeClass, row, column) {
+    const line = this.#createDivWithClass(lineTypeClass);
+
+    const lineFillStyle = FILLED_LINE_STYLES[this.boardState.lineMarked(row, column)];
+    if (lineFillStyle) {
+      line.classList.add("filled", lineFillStyle);
+    } else {
+      line.dataset.row = row;
+      line.dataset.column = column;
+
+      line.addEventListener("pointerup", e => markLine(e, row, column));
+    }
+
+    return line;
+  }
+
+  #createDivWithClass(elementClass) {
+    const element = document.createElement("div");
+    element.classList.add(elementClass);
+    return element;
+  }
+}
+
+async function markLine(event, row, column) {
+  const classes = event.currentTarget.classList;
+  if (!classes.contains("filled")) {
+    const gameClient = await getGameClient();
+    const turnResult = await gameClient.markLine(row, column);
+  }
+}
+
+function turnCompleted(board, turnResponse) {
+  const row = turnResponse.lineRow;
+  const column = turnResponse.lineColumn;
+  const line = board.querySelector(`div:is(.lh,.lv)[data-row='${row}'][data-column='${column}']`);
+
+  if (line) {
+    const lineFillStyle = FILLED_LINE_STYLES[turnResponse.lastPlayer + 1];
+    line.classList.add("filled", lineFillStyle);
+  } else {
+    console.log(`ERROR: No line element found at row ${row} and column ${column}.`);
+  }
+
+  if (turnResponse.filledBoxes.length > 0) {
+    const boxFillStyle = FILLED_BOX_STYLES[turnResponse.lastPlayer + 1];
+
+    for (const boxIndex of turnResponse.filledBoxes) {
+      const box = board.querySelector(`div.b[data-box-index='${boxIndex}']`);
+      if (box) {
+        box.classList.add("filled", boxFillStyle)
+      } else {
+        console.log(`ERROR: No box element found with index ${boxIndex}.`);
+      }
+    }
+  }
+}
+
+function getCurrentPlayerId(defaultId) {
   const hash = window.location.hash;
   if (hash.length == 0) {
-    return "p1";
+    return defaultId;
   } else {
     const playerId = hash.substring(1);
     return playerId;
   }
 }
 
-async function populateBoard(boardArea, board) {
-  const gameClient = await getGameClient();
-  const playerId = getCurrentPlayer();
-
-  let gameState = null;
+async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
+  const playerId = getCurrentPlayerId(playerOneId);
 
   try {
-    gameState = await gameClient.getGame("A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B", playerId);
+    return await gameClient.getGame(gameId, playerId);
   } catch (error) {
-    console.log(error);
-
     if (error.message.indexOf("404") >= 0) {
-      gameState = await gameClient.createGame(4, 4, "p1", "p2", playerId === "p1");
+      return await gameClient.createGame(2, 2, playerOneId, playerTwoId, playerId);
     } else {
-      return;
+      console.log(error);
+      throw error;
     }
   }
-
-  const boardState = gameState.board;
-  const rowCount = boardState.rowCount;
-  const columnCount = boardState.columnCount;
-  const player = playerId === "p1" ? 1 : 2;
-
-  boardArea.style.setProperty("--db-column-count", columnCount);
-  boardArea.style.setProperty("--db-row-count", rowCount);
-  boardArea.style.setProperty("--db-highlight",
-    player == 1 ? "var(--db-highlight-one)" : "var(--db-highlight-two)"
-  );
-
-  for (let row = 0; row < rowCount * 2 + 1; ++row) {
-    if (row % 2 == 0) {
-      populateHorizontalRow(board, boardState, player, row, columnCount);
-    } else {
-      populateVerticalRow(board, boardState, player, row, columnCount);
-    }
-  }
-
-  // Example of filling box
-//  board.querySelector("div.b[data-row='3'][data-column='2']")
-//    .classList.add("filled", player == 0 ? "bf1" : "bf2");
 }
 
-function populateHorizontalRow(board, boardState, player, row, columnCount) {
-  for (let column = 0; column < columnCount; column++) {
-    board.appendChild(createDot());
-    board.appendChild(createLine("lh", boardState, player, row, column));
-  }
-  board.appendChild(createDot());
-}
-
-function populateVerticalRow(board, boardState, player, row, columnCount) {
-  for (let column = 0; column < columnCount; column++) {
-    board.appendChild(createLine("lv", boardState, player, row, column));
-    board.appendChild(createBox(boardState, Math.floor(row / 2), column));
-  }
-  board.appendChild(createLine("lv", boardState, player, row, columnCount));
-}
-
-function createDot() {
-  return createDivWithClass("d");
-}
-
-function createBox(boardState, row, column) {
-  const box = createDivWithClass("b");
-  box.dataset.row = row;
-  box.dataset.column = column;
-
-  const boxFillStyle = filledBoxStyles[boardState.boxFilled(row, column)];
-  if (boxFillStyle) {
-    box.classList.add("filled", boxFillStyle);
-  }
-
-  return box;
-}
-
-function createLine(lineTypeClass, boardState, player, row, column) {
-  const line = createDivWithClass(lineTypeClass);
-  line.addEventListener("pointerup", e => markLine(e, player, row, column));
-
-  const lineFillStyle = filledLineStyles[boardState.lineMarked(row, column)];
-  if (lineFillStyle) {
-    line.classList.add("filled", lineFillStyle);
-  }
-
-  return line;
-}
-
-function createDivWithClass(elementClass) {
-  const element = document.createElement("div");
-  element.classList.add(elementClass);
-  return element;
-}
-
-async function markLine(event, player, row, column) {
-  const classes = event.currentTarget.classList;
-  if (!classes.contains("filled")) {
-    const gameClient = await getGameClient();
-    const turnResult = await gameClient.markLine(row, column);
-
-    const lineFillStyle = filledLineStyles[player];
-    classes.add("filled", lineFillStyle);
-  }
-}
-
-function initialize() {
+async function initialize() {
   const boardArea = document.querySelector("div.board-area");
   const board = document.querySelector("div.board");
-  populateBoard(boardArea, board);
+  const gameClient = await getGameClient();
+  const gameState = await loadGameState(
+    gameClient,
+    "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B",
+    "p1", "p2");
+
+  new BoardUIBuilder(gameState, boardArea, board).build();
+  gameClient.setOnTurnCompleted(e => turnCompleted(board, e));
 }
 
 window.addEventListener("load", initialize);

@@ -38,8 +38,12 @@ class BoardView {
     }
   }
 
+  getBoxIndex(row, column) {
+    return row * this.columnCount + column;
+  }
+
   boxFilled(row, column) {
-    const boxIndex = row * this.columnCount + column;
+    const boxIndex = this.getBoxIndex(row, column);
 
     if (this.#filledBoxes[0].get(boxIndex)) {
       return 1;
@@ -51,6 +55,8 @@ class BoardView {
   }
 }
 
+const doNothingWithArgument = _ => {};
+
 class GameClient {
   #gameId;
   #playerId;
@@ -59,16 +65,27 @@ class GameClient {
   #turnResponseType;
   #webSocket;
 
+  #onTurnCompleted;
+
   constructor(protoRoot) {
     this.#protoRoot = protoRoot;
 
     const serviceFactory = protoRoot.lookup("dots_boxes_game.GameService");
     this.#service = serviceFactory.create(this.#fetchRpc, false, false);
     this.#turnResponseType = protoRoot.lookupType("dots_boxes_game.TurnResponse");
+    this.setOnTurnCompleted(null);
   }
 
-  getPlayer() {
+  getPlayerId() {
     return this.#playerId;
+  }
+
+  setOnTurnCompleted(callback) {
+    if (callback === null) {
+      this.#onTurnCompleted = doNothingWithArgument;
+    } else {
+      this.#onTurnCompleted = callback;
+    }
   }
 
   async getGame(gameId, playerId) {
@@ -78,8 +95,24 @@ class GameClient {
 
     this.#playerId = playerId;
     this.#gameId = gameId;
+
+    if (result.game.outcome === null) {
+      this.#connectGameEvents(this.#gameId);
+    }
+    return this.#gameFromGameResponse(result);
+  }
+
+  async createGame(rowCount, columnCount, playerOneId, playerTwoId, currentPlayerId) {
+    const result = await this.#service.create({
+      rowCount: rowCount,
+      columnCount: columnCount,
+      playerOneId: playerOneId,
+      playerTwoId: playerTwoId});
+
+    this.#playerId = currentPlayerId;
+    this.#gameId = result.uuid;
     this.#connectGameEvents(this.#gameId);
-    return this.#gameFromGameState(result.game);
+    return this.#gameFromGameResponse(result);
   }
 
   async markLine(row, column) {
@@ -89,22 +122,22 @@ class GameClient {
       playerId: this.#playerId,
       row: row,
       column: column});
-    console.log(result);
 
     return result;
   }
 
-  #gameFromGameState(gameState) {
+  #gameFromGameResponse(gameResponse) {
     return {
-      currentPlayer: gameState.currentPlayer,
-      board: new BoardView(gameState)
+      currentPlayerIndex: gameResponse.game.currentPlayer,
+      playerIndex: gameResponse.thisPlayer,
+      board: new BoardView(gameResponse.game),
+      outcome: gameResponse.game.outcome
     };
   }
 
-  #connectGameEvents(gameId) {
-    const eventsUrl = `ws://${window.location.host}/${eventsBaseUrl}/${gameId}`;
-
+  #disconnectGameEvents() {
     if (this.#webSocket) {
+      console.log("Disconnecting game events WebSocket.")
       this.#webSocket.close();
       this.#webSocket.onmessage = null;
       this.#webSocket.onerror = null;
@@ -112,6 +145,12 @@ class GameClient {
       this.#webSocket.onclose = null;
       this.#webSocket = null;
     }
+  }
+
+  #connectGameEvents(gameId) {
+    const eventsUrl = `ws://${window.location.host}/${eventsBaseUrl}/${gameId}`;
+
+    this.#disconnectGameEvents();
     this.#webSocket = new WebSocket(eventsUrl);
     this.#webSocket.binaryType = "arraybuffer";
     this.#webSocket.onmessage = this.#onMessage.bind(this);
@@ -132,19 +171,11 @@ class GameClient {
     const turnResponse = this.#turnResponseType.decode(buffer);
 
     console.log(turnResponse);
-  }
 
-  async createGame(rowCount, columnCount, playerOneId, playerTwoId, currentIsPlayerOne) {
-    const result = await this.#service.create({
-      rowCount: rowCount,
-      columnCount: columnCount,
-      playerOneId: playerOneId,
-      playerTwoId: playerTwoId});
-
-    this.#playerId = currentIsPlayerOne ? playerOneId : playerTwoId;
-    this.#gameId = result.uuid;
-    this.#connectGameEvents(this.#gameId);
-    return this.#gameFromGameState(result.game);
+    if (turnResponse.outcome) {
+      this.#disconnectGameEvents();
+    }
+    this.#onTurnCompleted(turnResponse);
   }
 
   #fetchRpc(method, requestData, callback) {

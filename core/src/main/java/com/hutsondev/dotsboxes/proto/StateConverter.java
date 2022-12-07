@@ -12,6 +12,7 @@ import com.hutsondev.dotsboxes.core.Player;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.BitSet;
+import java.util.Optional;
 import lombok.NonNull;
 
 public class StateConverter {
@@ -28,10 +29,16 @@ public class StateConverter {
   }
 
   public static GameState toGameState(@NonNull Game game) {
-    return GameState.newBuilder()
+    GameState.Builder builder = GameState.newBuilder()
         .setCurrentPlayer(game.getCurrentPlayer().getIndex())
-        .setBoard(toBoardState(game.board()))
-        .build();
+        .setBoard(toBoardState(game.board()));
+
+    Optional<Outcome> maybeOutcome = game.getOutcome();
+    if (maybeOutcome.isPresent()) {
+      builder.setOutcome(StateConverter.toGameOutcome(maybeOutcome.get()));
+    }
+
+    return builder.build();
   }
 
   public static Board toBoard(@NonNull BoardState boardState) {

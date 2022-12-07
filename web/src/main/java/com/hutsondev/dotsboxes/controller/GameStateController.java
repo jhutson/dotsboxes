@@ -50,11 +50,15 @@ public class GameStateController {
     return game.getCurrentPlayer() == Player.TWO && PLAYER_TWO_ID.equals(playerId);
   }
 
-  private void validatePlayer(Game game, String playerId) {
-    if (!(PLAYER_ONE_ID.equals(playerId) || PLAYER_TWO_ID.equals(playerId))) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-          "Player ID does not represent a player in this game.");
+  private Player validatePlayerId(Game game, String playerId) {
+    if (PLAYER_ONE_ID.equals(playerId)) {
+      return Player.ONE;
+    } else if (PLAYER_TWO_ID.equals(playerId)) {
+      return Player.TWO;
     }
+
+    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+        "Player ID does not represent a player in this game.");
   }
 
   @PostMapping(value = "/create",
@@ -70,6 +74,7 @@ public class GameStateController {
     return CreateGameResponse.newBuilder()
         .setGame(StateConverter.toGameState(game))
         .setUuid(GAME_ID)
+        .setThisPlayer(Player.ONE.getIndex())
         .build();
   }
 
@@ -78,10 +83,11 @@ public class GameStateController {
       produces = PROTOBUF_MEDIA_TYPE)
   GetGameResponse getGame(@RequestBody GetGameRequest request) {
     Game game = getCurrentGame(request.getUuid());
-    validatePlayer(game, request.getPlayerId());
+    Player player = validatePlayerId(game, request.getPlayerId());
 
     return GetGameResponse.newBuilder()
         .setGame(StateConverter.toGameState(game))
+        .setThisPlayer(player.getIndex())
         .build();
   }
 
@@ -110,7 +116,9 @@ public class GameStateController {
 
     TurnResponse.Builder builder = TurnResponse.newBuilder()
         .setLastPlayer(turnResult.lastPlayer().getIndex())
-        .setCurrentPlayer(turnResult.currentPlayer().getIndex());
+        .setCurrentPlayer(turnResult.currentPlayer().getIndex())
+        .setLineRow(request.getRow())
+        .setLineColumn(request.getColumn());
 
     if (turnResult.filledBoxes().isPresent()) {
       builder.addAllFilledBoxes(turnResult.filledBoxes().get());
