@@ -13,15 +13,20 @@ public class GameEventPublisher {
 
   private static final Logger logger = LoggerFactory.getLogger(GameEventPublisher.class);
 
-  // TODO: Change to unicast and publish source with auto-connect. Store reference to composed Flux.
-  private final Many<TurnResponse> turnSink = Sinks.many().multicast().onBackpressureBuffer();
+  private final Many<TurnResponse> turnSink;
+  private final Flux<TurnResponse> turnEvents;
+
+  public GameEventPublisher() {
+    this.turnSink = Sinks.many().multicast().onBackpressureBuffer();
+    this.turnEvents = turnSink.asFlux().doFinally(s -> logSignal("turnSink", s)).cache(0);
+  }
 
   private static void logSignal(String component, SignalType signalType) {
     logger.debug("{} publisher completed with signalType {}", component, signalType);
   }
 
   public Flux<TurnResponse> getTurnEvents() {
-    return turnSink.asFlux().doFinally(s -> logSignal("turnSink", s)).cache(0);
+    return turnEvents;
   }
 
   public void publishTurn(TurnResponse turnResponse) {
