@@ -123,6 +123,8 @@ function turnCompleted(board, turnResponse) {
       }
     }
   }
+
+  checkOutcome(turnResponse.outcome);
 }
 
 function getCurrentPlayerId(defaultId) {
@@ -150,6 +152,27 @@ async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
   }
 }
 
+let checkOutcome = _ => {};
+
+const checkOutcomeForPlayer = playerIndex => outcome => {
+  if (outcome) {
+    const thisPlayerScore = playerIndex == 0 ? outcome.playerOneScore : outcome.playerTwoScore;
+    const otherPlayerScore = playerIndex == 0 ? outcome.playerTwoScore : outcome.playerOneScore;
+
+    let message = "";
+    if (thisPlayerScore == otherPlayerScore) {
+      message = "Game ended in a TIE!";
+    } else if (thisPlayerScore > otherPlayerScore) {
+      message = "You are the winner!";
+    } else {
+      message = "You lost this game."
+    }
+
+    message += `\n\nYour Score: ${thisPlayerScore}\nOpponent Score: ${otherPlayerScore}`;
+    window.setTimeout(() => window.alert(message), 500);
+  }
+}
+
 async function initialize() {
   const boardArea = document.querySelector("div.board-area");
   const board = document.querySelector("div.board");
@@ -161,6 +184,9 @@ async function initialize() {
 
   new BoardUIBuilder(gameState, boardArea, board).build();
   gameClient.setOnTurnCompleted(e => turnCompleted(board, e));
+
+  checkOutcome = checkOutcomeForPlayer(gameState.playerIndex);
+  checkOutcome(gameState.outcome);
 }
 
 window.addEventListener("load", initialize);
