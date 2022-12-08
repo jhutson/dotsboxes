@@ -1,10 +1,10 @@
 package com.hutsondev.dotsboxes.controller;
 
-import com.hutsondev.dotsboxes.core.Game;
 import com.hutsondev.dotsboxes.core.Outcome;
 import com.hutsondev.dotsboxes.core.Player;
 import com.hutsondev.dotsboxes.core.TurnResult;
 import com.hutsondev.dotsboxes.events.GameEventPublisher;
+import com.hutsondev.dotsboxes.model.GameSession;
 import com.hutsondev.dotsboxes.proto.CreateGameRequest;
 import com.hutsondev.dotsboxes.proto.CreateGameResponse;
 import com.hutsondev.dotsboxes.proto.GetGameRequest;
@@ -12,13 +12,14 @@ import com.hutsondev.dotsboxes.proto.GetGameResponse;
 import com.hutsondev.dotsboxes.proto.StateConverter;
 import com.hutsondev.dotsboxes.proto.TurnRequest;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
+import com.hutsondev.dotsboxes.repository.GameStore;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,53 +30,39 @@ public class GameStateController {
 
   public static final String PROTOBUF_MEDIA_TYPE = "application/x-protobuf;charset=UTF-8";
 
-  private static Game CURRENT_GAME = null;
-  private static String PLAYER_ONE_ID = null;
-  private static String PLAYER_TWO_ID = null;
-  private static final String GAME_ID = "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B";
-
   @Autowired
   private GameEventPublisher gameEventPublisher;
 
-  private Game getCurrentGame(String gameId) {
-    if (GAME_ID.equalsIgnoreCase(gameId) && CURRENT_GAME != null) {
-      return CURRENT_GAME;
-    }
+  @Autowired
+  private GameStore gameStore;
 
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+  private GameSession getCurrentGame(String gameId) {
+    Optional<GameSession> gameSession = gameStore.get(gameId);
+    return gameSession.orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.NOT_FOUND));
   }
 
-  private boolean isPlayerTurn(Game game, String playerId) {
-    if (game.getCurrentPlayer() == Player.ONE && PLAYER_ONE_ID.equals(playerId)) {
-      return true;
-    }
-    return game.getCurrentPlayer() == Player.TWO && PLAYER_TWO_ID.equals(playerId);
-  }
-
-  private Player validatePlayerId(Game game, String playerId) {
-    if (PLAYER_ONE_ID.equals(playerId)) {
-      return Player.ONE;
-    } else if (PLAYER_TWO_ID.equals(playerId)) {
-      return Player.TWO;
-    }
-
-    throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-        "Player ID does not represent a player in this game.");
+  private Player validatePlayerId(GameSession gameSession, String playerId) {
+    Optional<Player> player = gameSession.getPlayerIndex(playerId);
+    return player.orElseThrow(
+        () -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
+            "Player ID does not represent a player in this game.")
+    );
   }
 
   @PostMapping(value = "/create",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
   CreateGameResponse createGame(@RequestBody CreateGameRequest request) {
-    Game game = new Game(request.getRowCount(), request.getColumnCount());
-
-    CURRENT_GAME = game;
-    PLAYER_ONE_ID = request.getPlayerOneId();
-    PLAYER_TWO_ID = request.getPlayerTwoId();
+    GameSession gameSession = gameStore.create(
+        request.getRowCount(),
+        request.getColumnCount(),
+        request.getPlayerOneId(),
+        request.getPlayerTwoId());
 
     return CreateGameResponse.newBuilder()
-        .setGame(StateConverter.toGameState(game))
-        .setUuid(GAME_ID)
+        .setGame(StateConverter.toGameState(gameSession.game()))
+        .setUuid(gameSession.gameId())
         .setThisPlayer(Player.ONE.getIndex())
         .build();
   }
@@ -84,38 +71,39 @@ public class GameStateController {
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
   GetGameResponse getGame(@RequestBody GetGameRequest request) {
-    Game game = getCurrentGame(request.getUuid());
-    Player player = validatePlayerId(game, request.getPlayerId());
+    GameSession gameSession = getCurrentGame(request.getUuid());
+    Player player = validatePlayerId(gameSession, request.getPlayerId());
 
     return GetGameResponse.newBuilder()
-        .setGame(StateConverter.toGameState(game))
+        .setGame(StateConverter.toGameState(gameSession.game()))
         .setThisPlayer(player.getIndex())
         .build();
   }
 
   // Temporary endpoint for testing.
-  @PostMapping(value = "/clear")
+  @PostMapping(value = "/clear",
+      consumes = {MediaType.TEXT_PLAIN_VALUE})
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  void clearGame() {
-    CURRENT_GAME = null;
-    PLAYER_ONE_ID = null;
-    PLAYER_TWO_ID = null;
+  void clearGame(@RequestBody String gameId) {
+    if (!gameStore.remove(gameId)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
   }
 
   @PostMapping(value = "/markline",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
   TurnResponse markLine(@RequestBody TurnRequest request) {
-    Game game = getCurrentGame(request.getUuid());
+    GameSession gameSession = getCurrentGame(request.getUuid());
 
-    if (!isPlayerTurn(game, request.getPlayerId())) {
+    if (!gameSession.isPlayerTurn(request.getPlayerId())) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     TurnResult turnResult;
 
     try {
-      turnResult = game.markLine(request.getRow(), request.getColumn());
+      turnResult = gameSession.game().markLine(request.getRow(), request.getColumn());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, null, e);
     }
@@ -135,7 +123,7 @@ public class GameStateController {
       builder.addAllFilledBoxes(turnResult.filledBoxes().get());
     }
 
-    Optional<Outcome> maybeOutcome = game.getOutcome();
+    Optional<Outcome> maybeOutcome = gameSession.game().getOutcome();
     if (maybeOutcome.isPresent()) {
       builder.setOutcome(StateConverter.toGameOutcome(maybeOutcome.get()));
     }
