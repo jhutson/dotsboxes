@@ -1,5 +1,5 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.5'
+	id 'org.springframework.boot' version '3.0.0'
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 	id "io.freefair.lombok" version "6.5.1"
 	id "de.undercouch.download" version "5.3.0"
@@ -19,12 +19,12 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.springframework:spring-jdbc'
 	implementation 'org.springframework.session:spring-session-core'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'org.postgresql:postgresql'
-	runtimeOnly 'org.postgresql:r2dbc-postgresql'
+//	implementation 'org.springframework:spring-jdbc'
+//	implementation 'org.flywaydb:flyway-core'
+//	runtimeOnly 'org.postgresql:postgresql'
+//	runtimeOnly 'org.postgresql:r2dbc-postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
@@ -62,11 +62,7 @@ bootJar.configure {
 	dependsOn addExternalFilesToResources
 }
 
-bootJarMainClassName.configure {
-	dependsOn addExternalFilesToResources
-}
-
-bootRunMainClassName.configure {
+resolveMainClassName.configure {
 	dependsOn addExternalFilesToResources
 }
 

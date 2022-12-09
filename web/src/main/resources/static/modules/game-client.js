@@ -215,6 +215,7 @@ class GameClient {
     fetch(serviceUrl, {
       method: "POST",
       mode: "same-origin",
+      credentials: "same-origin",
       cache: "no-cache",
       headers: {
         "Accept": "application/x-protobuf;charset=UTF-8",

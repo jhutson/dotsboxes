@@ -96,12 +96,12 @@ public class GameStateController {
   TurnResponse markLine(@RequestBody TurnRequest request) {
     GameSession gameSession = getCurrentGame(request.getUuid());
 
-    if (!gameSession.isPlayerTurn(request.getPlayerId())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-
     if (request.getSequenceNumber() != gameSession.sequenceNumber()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT);
+    }
+
+    if (!gameSession.isPlayerTurn(request.getPlayerId())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
     TurnResult turnResult;

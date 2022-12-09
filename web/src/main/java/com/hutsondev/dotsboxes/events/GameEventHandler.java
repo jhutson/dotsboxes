@@ -58,7 +58,7 @@ public class GameEventHandler implements WebSocketHandler {
             gameEventPublisher.getTurnEvents()
                 .map(e ->
                     session.binaryMessage(factory -> {
-                      DataBuffer buffer = factory.allocateBuffer();
+                      DataBuffer buffer = factory.allocateBuffer(e.getSerializedSize());
                       StateConverter.write(e, buffer.asOutputStream());
                       return buffer;
                     })
