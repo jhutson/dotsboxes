@@ -135,6 +135,8 @@ class GameClient {
 
   async markLine(row, column) {
     console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}, sequenceNumber=${this.#sequenceNumber}`);
+
+    try {
     const result = await this.#service.markLine({
       uuid: this.#gameId,
       sequenceNumber: this.#sequenceNumber,
@@ -143,6 +145,13 @@ class GameClient {
       column: column});
 
     return result;
+    } catch (error) {
+      if (error.message.indexOf("409") >= 0) {
+        await this.getGame(this.#gameId, this.#playerId);
+      } else {
+        throw error;
+      }
+    }
   }
 
   #gameFromGameResponse(gameResponse) {
