@@ -9,6 +9,11 @@ import lombok.Getter;
 
 public class Board implements BoardView {
 
+  /**
+   * Maximum size of row or column count.
+   */
+  public static final int MAX_DIMENSION = 20;
+
   @Getter
   private final int rowCount;
 
@@ -34,6 +39,10 @@ public class Board implements BoardView {
 
     if (columnCount < 1) {
       throw argumentException(ErrorMessages.COLUMN_COUNT_GREATER_THAN_ZERO);
+    }
+
+    if (rowCount > MAX_DIMENSION || columnCount > MAX_DIMENSION) {
+      throw argumentException(ErrorMessages.DIMENSION_TOO_LARGE);
     }
 
     this.rowCount = rowCount;

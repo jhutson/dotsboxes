@@ -9,7 +9,8 @@ public enum ErrorMessages {
   COLUMN_GREATER_THAN_ZERO("column_greater_than_zero"),
   COLUMN_EXCEEDS_MAXIMUM_FOR_ROW("column_exceeds_maximum_for_row"),
   ROW_EXCEEDS_MAXIMUM("row_exceeds_maximum"),
-  BITSET_SIZE_TOO_LARGE("bitset_size_too_large");
+  BITSET_SIZE_TOO_LARGE("bitset_size_too_large"),
+  DIMENSION_TOO_LARGE("dimension_too_large");
 
   private final String key;
 

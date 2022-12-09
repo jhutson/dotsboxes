@@ -50,6 +50,20 @@ class BoardTest {
     ).withMessage(ErrorMessages.COLUMN_COUNT_GREATER_THAN_ZERO.getMessage());
   }
 
+  @Test
+  void rowCountTooLarge() {
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> new Board(Board.MAX_DIMENSION + 1, 1)
+    ).withMessage(ErrorMessages.DIMENSION_TOO_LARGE.getMessage());
+  }
+
+  @Test
+  void columnCountTooLarge() {
+    assertThatIllegalArgumentException().isThrownBy(
+        () -> new Board(1, Board.MAX_DIMENSION + 1)
+    ).withMessage(ErrorMessages.DIMENSION_TOO_LARGE.getMessage());
+  }
+
   private static Stream<Arguments> outOfRangeLineArgumentsProvider() {
     return Stream.of(
         arguments(-1, 0, ErrorMessages.ROW_GREATER_THAN_ZERO),
