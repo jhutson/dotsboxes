@@ -67,6 +67,7 @@ class GameClient {
   #webSocket;
 
   #onTurnCompleted;
+  #onGameLoaded;
 
   constructor(protoRoot) {
     this.#protoRoot = protoRoot;
@@ -75,6 +76,7 @@ class GameClient {
     this.#service = serviceFactory.create(this.#fetchRpc, false, false);
     this.#turnResponseType = protoRoot.lookupType("dots_boxes_game.TurnResponse");
     this.setOnTurnCompleted(null);
+    this.setOnGameLoaded(null);
   }
 
   getPlayerId() {
@@ -89,19 +91,36 @@ class GameClient {
     }
   }
 
+  setOnGameLoaded(callback) {
+    if (callback === null) {
+      this.#onGameLoaded = doNothingWithArgument;
+    } else {
+      this.#onGameLoaded = callback;
+    }
+  }
+
+  #setupFromGameResponse(gameResponse, gameId, playerId) {
+    this.#gameId = gameId;
+    this.#playerId = playerId;
+    this.#sequenceNumber = gameResponse.game.sequenceNumber;
+
+    if (gameResponse.game.outcome === null) {
+      this.#connectGameEvents(this.#gameId);
+    }
+
+    const gameState = this.#gameFromGameResponse(gameResponse);
+    const onGameLoaded = this.#onGameLoaded;
+
+    window.setTimeout(() => onGameLoaded(this, gameState), 0);
+    return gameState;
+  }
+
   async getGame(gameId, playerId) {
     const result = await this.#service.get({
       uuid: gameId,
       playerId: playerId});
 
-    this.#gameId = gameId;
-    this.#playerId = playerId;
-    this.#sequenceNumber = result.game.sequenceNumber;
-
-    if (result.game.outcome === null) {
-      this.#connectGameEvents(this.#gameId);
-    }
-    return this.#gameFromGameResponse(result);
+    return this.#setupFromGameResponse(result, gameId, playerId);
   }
 
   async createGame(rowCount, columnCount, playerOneId, playerTwoId, currentPlayerId) {
@@ -111,12 +130,7 @@ class GameClient {
       playerOneId: playerOneId,
       playerTwoId: playerTwoId});
 
-    this.#gameId = result.uuid;
-    this.#playerId = currentPlayerId;
-    this.#sequenceNumber = result.game.sequenceNumber;
-    this.#connectGameEvents(this.#gameId);
-
-    return this.#gameFromGameResponse(result);
+    return this.#setupFromGameResponse(result, result.uuid, currentPlayerId);
   }
 
   async markLine(row, column) {

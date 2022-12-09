@@ -173,20 +173,27 @@ const checkOutcomeForPlayer = playerIndex => outcome => {
   }
 }
 
-async function initialize() {
+function gameLoaded(gameClient, gameState) {
   const boardArea = document.querySelector("div.board-area");
   const board = document.querySelector("div.board");
-  const gameClient = await getGameClient();
-  const gameState = await loadGameState(
-    gameClient,
-    "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B",
-    "p1", "p2");
+
+  board.replaceChildren();
 
   new BoardUIBuilder(gameState, boardArea, board).build();
   gameClient.setOnTurnCompleted(e => turnCompleted(board, e));
 
   checkOutcome = checkOutcomeForPlayer(gameState.playerIndex);
   checkOutcome(gameState.outcome);
+}
+
+async function initialize() {
+  const gameClient = await getGameClient();
+  gameClient.setOnGameLoaded(gameLoaded);
+
+  await loadGameState(
+    gameClient,
+    "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B",
+    "p1", "p2");
 }
 
 window.addEventListener("load", initialize);
