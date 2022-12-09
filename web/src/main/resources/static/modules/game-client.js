@@ -60,6 +60,7 @@ const doNothingWithArgument = _ => {};
 class GameClient {
   #gameId;
   #playerId;
+  #sequenceNumber;
   #protoRoot;
   #service;
   #turnResponseType;
@@ -93,8 +94,9 @@ class GameClient {
       uuid: gameId,
       playerId: playerId});
 
-    this.#playerId = playerId;
     this.#gameId = gameId;
+    this.#playerId = playerId;
+    this.#sequenceNumber = result.game.sequenceNumber;
 
     if (result.game.outcome === null) {
       this.#connectGameEvents(this.#gameId);
@@ -109,16 +111,19 @@ class GameClient {
       playerOneId: playerOneId,
       playerTwoId: playerTwoId});
 
-    this.#playerId = currentPlayerId;
     this.#gameId = result.uuid;
+    this.#playerId = currentPlayerId;
+    this.#sequenceNumber = result.game.sequenceNumber;
     this.#connectGameEvents(this.#gameId);
+
     return this.#gameFromGameResponse(result);
   }
 
   async markLine(row, column) {
-    console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}`);
+    console.log(`markLine gameId=${this.#gameId}, playerId=${this.#playerId}, sequenceNumber=${this.#sequenceNumber}`);
     const result = await this.#service.markLine({
       uuid: this.#gameId,
+      sequenceNumber: this.#sequenceNumber,
       playerId: this.#playerId,
       row: row,
       column: column});
@@ -169,6 +174,8 @@ class GameClient {
     console.log("ws: received message");
     const buffer = new Uint8Array(eventMessage.data);
     const turnResponse = this.#turnResponseType.decode(buffer);
+
+    this.#sequenceNumber = turnResponse.sequenceNumber;
 
     console.log(turnResponse);
 

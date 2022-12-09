@@ -5,7 +5,12 @@ import com.hutsondev.dotsboxes.core.Player;
 import java.util.Objects;
 import java.util.Optional;
 
-public record GameSession(Game game, String gameId, String playerOneId, String playerTwoId) {
+public record GameSession(
+    Game game,
+    String gameId,
+    int sequenceNumber,
+    String playerOneId,
+    String playerTwoId) {
 
   public GameSession {
     Objects.requireNonNull(game);

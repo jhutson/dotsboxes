@@ -19,6 +19,7 @@ message GameState {
   BoardState board = 1;
   int32 current_player = 2;
   optional GameOutcome outcome = 3;
+  int32 sequence_number = 4;
 }
 
 message GameOutcome {
@@ -51,16 +52,18 @@ message GetGameResponse {
 
 message TurnRequest {
   string uuid = 1;
-  string player_id = 2;
-  int32 row = 3;
-  int32 column = 4;
+  int32 sequence_number = 2;
+  string player_id = 3;
+  int32 row = 4;
+  int32 column = 5;
 }
 
 message TurnResponse {
-  int32 last_player = 1;
-  int32 current_player = 2;
-  int32 line_row = 3;
-  int32 line_column = 4;
-  repeated int32 filled_boxes = 5;
-  optional GameOutcome outcome = 6;
+  int32 sequence_number = 1;
+  int32 last_player = 2;
+  int32 current_player = 3;
+  int32 line_row = 4;
+  int32 line_column = 5;
+  repeated int32 filled_boxes = 6;
+  optional GameOutcome outcome = 7;
 }

@@ -61,7 +61,7 @@ public class GameStateController {
         request.getPlayerTwoId());
 
     return CreateGameResponse.newBuilder()
-        .setGame(StateConverter.toGameState(gameSession.game()))
+        .setGame(StateConverter.toGameState(gameSession.game(), gameSession.sequenceNumber()))
         .setUuid(gameSession.gameId())
         .setThisPlayer(Player.ONE.getIndex())
         .build();
@@ -75,7 +75,7 @@ public class GameStateController {
     Player player = validatePlayerId(gameSession, request.getPlayerId());
 
     return GetGameResponse.newBuilder()
-        .setGame(StateConverter.toGameState(gameSession.game()))
+        .setGame(StateConverter.toGameState(gameSession.game(), gameSession.sequenceNumber()))
         .setThisPlayer(player.getIndex())
         .build();
   }
@@ -100,6 +100,10 @@ public class GameStateController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
+    if (request.getSequenceNumber() != gameSession.sequenceNumber()) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT);
+    }
+
     TurnResult turnResult;
 
     try {
@@ -113,11 +117,14 @@ public class GameStateController {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
 
+    gameSession = gameStore.update(gameSession);
+
     TurnResponse.Builder builder = TurnResponse.newBuilder()
         .setLastPlayer(turnResult.lastPlayer().getIndex())
         .setCurrentPlayer(turnResult.currentPlayer().getIndex())
         .setLineRow(request.getRow())
-        .setLineColumn(request.getColumn());
+        .setLineColumn(request.getColumn())
+        .setSequenceNumber(gameSession.sequenceNumber());
 
     if (turnResult.filledBoxes().isPresent()) {
       builder.addAllFilledBoxes(turnResult.filledBoxes().get());

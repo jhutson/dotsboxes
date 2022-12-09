@@ -28,10 +28,11 @@ public class StateConverter {
         .build();
   }
 
-  public static GameState toGameState(@NonNull Game game) {
+  public static GameState toGameState(@NonNull Game game, int sequenceNumber) {
     GameState.Builder builder = GameState.newBuilder()
         .setCurrentPlayer(game.getCurrentPlayer().getIndex())
-        .setBoard(toBoardState(game.board()));
+        .setBoard(toBoardState(game.board()))
+        .setSequenceNumber(sequenceNumber);
 
     Optional<Outcome> maybeOutcome = game.getOutcome();
     if (maybeOutcome.isPresent()) {

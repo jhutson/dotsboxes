@@ -9,5 +9,7 @@ public interface GameStore {
 
   Optional<GameSession> get(String gameId);
 
+  GameSession update(GameSession gameSession);
+
   boolean remove(String gameId);
 }
