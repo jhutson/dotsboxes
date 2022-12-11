@@ -1,0 +1,27 @@
+Description: >-
+  Create DynamoDB table for storing game session information.
+Resources:
+  dotsboxes-game-sessions:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: 'id'
+          AttributeType: 'S'
+        - AttributeName: 'game'
+          AttributeType: 'B'
+        - AttributeName: 'p1'
+          AttributeType: 'S'
+        - AttributeName: 'p2'
+          AttributeType: 'S'
+        - AttributeName: 'v'
+          AttributeType: 'N'
+      KeySchema:
+        - AttributeName: 'id'
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: '5'
+        WriteCapacityUnits: '5'
+Outputs:
+  TableName:
+    Value: !Ref dotsboxes-game-sessions
+    Description: Table name of the newly created DynamoDB table

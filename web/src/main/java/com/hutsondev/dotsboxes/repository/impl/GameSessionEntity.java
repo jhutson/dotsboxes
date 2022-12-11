@@ -3,6 +3,7 @@ package com.hutsondev.dotsboxes.repository.impl;
 import lombok.Getter;
 import lombok.Setter;
 import software.amazon.awssdk.enhanced.dynamodb.extensions.annotations.DynamoDbVersionAttribute;
+import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbAttribute;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbBean;
 import software.amazon.awssdk.enhanced.dynamodb.mapper.annotations.DynamoDbPartitionKey;
 
@@ -17,15 +18,16 @@ public class GameSessionEntity {
   @Setter
   private byte[] game;
 
-  @Getter
+
+  @Getter(onMethod_ = {@DynamoDbAttribute("p1")})
   @Setter
   private String playerOneId;
 
-  @Getter
+  @Getter(onMethod_ = {@DynamoDbAttribute("p2")})
   @Setter
   private String playerTwoId;
 
-  @Getter(onMethod_ = {@DynamoDbVersionAttribute})
+  @Getter(onMethod_ = {@DynamoDbAttribute("v"), @DynamoDbVersionAttribute})
   @Setter
   private int version;
 

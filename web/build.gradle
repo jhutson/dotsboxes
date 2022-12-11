@@ -35,6 +35,8 @@ dependencies {
 }
 
 tasks.named('test') {
+	systemProperty "aws.region", System.getProperty("aws.region", "us-west-2")
+
 	useJUnitPlatform()
 }
 

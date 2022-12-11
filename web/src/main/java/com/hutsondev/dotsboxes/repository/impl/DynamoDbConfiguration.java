@@ -33,7 +33,7 @@ public class DynamoDbConfiguration {
   @Bean
   @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
   public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient) {
-    return dynamoDbClient.table("game_sessions",
+    return dynamoDbClient.table("dotsboxes-game-sessions",
         TableSchema.fromBean(GameSessionEntity.class));
   }
 }
