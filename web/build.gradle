@@ -21,6 +21,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'org.springframework.session:spring-session-core'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+	implementation platform('software.amazon.awssdk:bom:2.18.35')
+	implementation 'software.amazon.awssdk:dynamodb-enhanced'
+
 //	implementation 'org.springframework:spring-jdbc'
 //	implementation 'org.flywaydb:flyway-core'
 //	runtimeOnly 'org.postgresql:postgresql'
@@ -56,6 +60,12 @@ task downloadJavascriptModules(type: Download) {
 task addExternalFilesToResources() {
 	mustRunAfter 'processResources'
 	dependsOn copyProtoFile, downloadJavascriptModules
+}
+
+bootRun.configure {
+	systemProperty "aws.accessKeyId", System.getProperty("aws.accessKeyId", "defaultKey")
+	systemProperty "aws.secretKey", System.getProperty("aws.secretKey", "defaultSecret")
+	systemProperty "aws.region", System.getProperty("aws.region", "us-west-2")
 }
 
 bootJar.configure {

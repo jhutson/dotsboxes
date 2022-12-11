@@ -14,6 +14,7 @@ import com.hutsondev.dotsboxes.proto.TurnRequest;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import com.hutsondev.dotsboxes.repository.GameStore;
 import java.util.Optional;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -30,11 +31,15 @@ public class GameStateController {
 
   public static final String PROTOBUF_MEDIA_TYPE = "application/x-protobuf;charset=UTF-8";
 
-  @Autowired
-  private GameEventPublisher gameEventPublisher;
+  private final GameStore gameStore;
+  private final GameEventPublisher gameEventPublisher;
 
-  @Autowired
-  private GameStore gameStore;
+  public GameStateController(
+      @NonNull GameStore gameStore,
+      @NonNull GameEventPublisher gameEventPublisher) {
+    this.gameStore = gameStore;
+    this.gameEventPublisher = gameEventPublisher;
+  }
 
   private GameSession getCurrentGame(String gameId) {
     Optional<GameSession> gameSession = gameStore.get(gameId);

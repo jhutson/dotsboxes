@@ -1,6 +1,7 @@
 package com.hutsondev.dotsboxes.events;
 
 import java.util.Map;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,8 +12,11 @@ import org.springframework.web.reactive.socket.WebSocketHandler;
 @Configuration
 public class WebSocketConfiguration {
 
-  @Autowired
-  private GameEventHandler gameEventHandler;
+  private final GameEventHandler gameEventHandler;
+
+  public WebSocketConfiguration(@NonNull GameEventHandler gameEventHandler) {
+    this.gameEventHandler = gameEventHandler;
+  }
 
   @Bean
   HandlerMapping webSocketHandlerMapping() {

@@ -35,4 +35,14 @@ public record GameSession(
     }
     return Optional.empty();
   }
+
+  public GameSession incrementSequenceNumber() {
+    return new GameSession(
+        this.game(),
+        this.gameId(),
+        this.sequenceNumber() + 1,
+        this.playerOneId(),
+        this.playerTwoId()
+    );
+  }
 }

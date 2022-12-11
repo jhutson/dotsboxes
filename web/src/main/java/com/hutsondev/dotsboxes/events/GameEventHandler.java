@@ -2,6 +2,7 @@ package com.hutsondev.dotsboxes.events;
 
 import com.hutsondev.dotsboxes.proto.StateConverter;
 import java.util.Optional;
+import lombok.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,11 @@ public class GameEventHandler implements WebSocketHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GameEventHandler.class);
 
-  @Autowired
-  private GameEventPublisher gameEventPublisher;
+  private final GameEventPublisher gameEventPublisher;
+
+  public GameEventHandler(@NonNull GameEventPublisher gameEventPublisher) {
+    this.gameEventPublisher = gameEventPublisher;
+  }
 
   private Optional<String> getGameIdFromPath(String path) {
     if (path != null) {

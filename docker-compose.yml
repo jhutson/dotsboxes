@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  dynamodb-local:
+    command: "-jar DynamoDBLocal.jar -dbPath /home/dynamodblocal/data"
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - 9000:8000
+    volumes:
+      - dynamo_data:/home/dynamodblocal/data
+
+volumes:
+  dynamo_data:

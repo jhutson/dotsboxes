@@ -4,7 +4,9 @@ import com.hutsondev.dotsboxes.core.Game;
 import com.hutsondev.dotsboxes.model.GameSession;
 import com.hutsondev.dotsboxes.repository.GameStore;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 
+@Component("single")
 public class SingleGameStore implements GameStore {
 
   private static GameSession CURRENT_GAME = null;
@@ -37,7 +39,7 @@ public class SingleGameStore implements GameStore {
 
   @Override
   public synchronized GameSession update(GameSession gameSession) {
-    CURRENT_GAME = incrementSequenceNumber(gameSession);
+    CURRENT_GAME = gameSession.incrementSequenceNumber();
     return CURRENT_GAME;
   }
 
@@ -49,15 +51,5 @@ public class SingleGameStore implements GameStore {
       return true;
     }
     return false;
-  }
-
-  private GameSession incrementSequenceNumber(GameSession gameSession) {
-    return new GameSession(
-        gameSession.game(),
-        gameSession.gameId(),
-        gameSession.sequenceNumber() + 1,
-        gameSession.playerOneId(),
-        gameSession.playerTwoId()
-    );
   }
 }
