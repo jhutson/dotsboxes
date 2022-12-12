@@ -83,6 +83,10 @@ class GameClient {
     return this.#playerId;
   }
 
+  getGameId() {
+    return this.#gameId;
+  }
+
   setOnTurnCompleted(callback) {
     if (callback === null) {
       this.#onTurnCompleted = doNothingWithArgument;

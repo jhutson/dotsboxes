@@ -137,21 +137,6 @@ function getCurrentPlayerId(defaultId) {
   }
 }
 
-async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
-  const playerId = getCurrentPlayerId(playerOneId);
-
-  try {
-    return await gameClient.getGame(gameId, playerId);
-  } catch (error) {
-    if (error.message.indexOf("404") >= 0) {
-      return await gameClient.createGame(1, 1, playerOneId, playerTwoId, playerId);
-    } else {
-      console.log(error);
-      throw error;
-    }
-  }
-}
-
 let checkOutcome = _ => {};
 
 const checkOutcomeForPlayer = playerIndex => outcome => {
@@ -173,7 +158,29 @@ const checkOutcomeForPlayer = playerIndex => outcome => {
   }
 }
 
+async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
+  const playerId = getCurrentPlayerId(playerOneId);
+
+  try {
+    if (gameId.length === 0) {
+      return await gameClient.createGame(1, 1, playerOneId, playerTwoId, playerId);
+    } else {
+      return await gameClient.getGame(gameId, playerId);
+    }
+  } catch (error) {
+      console.log(error);
+      throw error;
+  }
+}
+
 function gameLoaded(gameClient, gameState) {
+  const gameIdParameter = document.location.search.substring(1);
+  const gameId = gameClient.getGameId();
+  if (gameId !== gameIdParameter) {
+    const newPathQuery = document.location.pathname + '?' + gameId + document.location.hash;
+    window.history.replaceState(null, '', newPathQuery)
+  }
+
   const boardArea = document.querySelector("div.board-area");
   const board = document.querySelector("div.board");
 
@@ -187,12 +194,13 @@ function gameLoaded(gameClient, gameState) {
 }
 
 async function initialize() {
+  const gameId = document.location.search.substring(1);
   const gameClient = await getGameClient();
   gameClient.setOnGameLoaded(gameLoaded);
 
   await loadGameState(
     gameClient,
-    "A33DFDFF-A3C0-4F7F-B4B2-9664E78D111B",
+    gameId,
     "p1", "p2");
 }
 

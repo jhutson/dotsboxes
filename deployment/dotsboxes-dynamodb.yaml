@@ -1,7 +1,8 @@
+AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
   Create DynamoDB table for storing game session information.
 Resources:
-  dotsboxes-game-sessions:
+  dotsboxesGameSessions:
     Type: 'AWS::DynamoDB::Table'
     Properties:
       AttributeDefinitions:
@@ -15,13 +16,11 @@ Resources:
           AttributeType: 'S'
         - AttributeName: 'v'
           AttributeType: 'N'
+      BillingMode: 'PAY_PER_REQUEST'
       KeySchema:
         - AttributeName: 'id'
           KeyType: HASH
-      ProvisionedThroughput:
-        ReadCapacityUnits: '5'
-        WriteCapacityUnits: '5'
 Outputs:
   TableName:
-    Value: !Ref dotsboxes-game-sessions
+    Value: !Ref dotsboxesGameSessions
     Description: Table name of the newly created DynamoDB table

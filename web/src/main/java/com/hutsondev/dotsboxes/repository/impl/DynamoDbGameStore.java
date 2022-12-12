@@ -9,9 +9,12 @@ import com.hutsondev.dotsboxes.repository.GameStore;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Key;
 
+@Lazy
 @Component("dynamodb")
 public class DynamoDbGameStore implements GameStore {
 
@@ -45,7 +48,8 @@ public class DynamoDbGameStore implements GameStore {
 
   @Override
   public Optional<GameSession> get(String gameId) {
-    GameSessionEntity entity = gameSessions.getItem(GameSessionEntity.withKey(gameId));
+    Key key = Key.builder().partitionValue(gameId).build();
+    GameSessionEntity entity = gameSessions.getItem(key);
 
     if (entity == null) {
       return Optional.empty();
@@ -89,7 +93,8 @@ public class DynamoDbGameStore implements GameStore {
 
   @Override
   public boolean remove(String gameId) {
-    GameSessionEntity entity = gameSessions.deleteItem(GameSessionEntity.withKey(gameId));
+    Key key = Key.builder().partitionValue(gameId).build();
+    GameSessionEntity entity = gameSessions.deleteItem(key);
     return entity != null;
   }
 }

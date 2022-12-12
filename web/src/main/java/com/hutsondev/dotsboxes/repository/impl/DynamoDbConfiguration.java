@@ -5,12 +5,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
+@Lazy
 @Configuration
 public class DynamoDbConfiguration {
 
@@ -32,8 +34,9 @@ public class DynamoDbConfiguration {
 
   @Bean
   @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-  public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient) {
-    return dynamoDbClient.table("dotsboxes-game-sessions",
+  public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient,
+      @Value("${com.hutsondev.dynamodb.table.game-sessions}") String gameSessionsTableName) {
+    return dynamoDbClient.table(gameSessionsTableName,
         TableSchema.fromBean(GameSessionEntity.class));
   }
 }

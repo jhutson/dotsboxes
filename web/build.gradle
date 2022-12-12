@@ -35,8 +35,6 @@ dependencies {
 }
 
 tasks.named('test') {
-	systemProperty "aws.region", System.getProperty("aws.region", "us-west-2")
-
 	useJUnitPlatform()
 }
 
@@ -68,6 +66,18 @@ bootRun.configure {
 	systemProperty "aws.accessKeyId", System.getProperty("aws.accessKeyId", "defaultKey")
 	systemProperty "aws.secretKey", System.getProperty("aws.secretKey", "defaultSecret")
 	systemProperty "aws.region", System.getProperty("aws.region", "us-west-2")
+}
+
+task createLocalTables() {
+	group "application"
+	description "Creates tables in local DynamoDB instance."
+
+	doFirst {
+		tasks.bootRun.configure {
+			systemProperty("spring.profiles.active", "create-db")
+		}
+	}
+	finalizedBy("bootRun")
 }
 
 bootJar.configure {

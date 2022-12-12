@@ -85,7 +85,7 @@ public class Board implements BoardView {
       if (existingSize == bitCount) {
         return existing;
 
-      } else if (existingSize < bitCount) {
+      } else if (existingSize < bitCount || existing.length() <= bitCount) {
         BitSet bitset = new BitSet(bitCount);
         bitset.or(existing);
         return bitset;
