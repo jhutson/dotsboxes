@@ -1,7 +1,7 @@
 import * as protobuf from "./protobuf.js";
 
 const serviceBaseUrl = "/api/v1/game";
-const eventsBaseUrl = 'events/v1/game';
+const eventsBaseUrl = '/events/v1/game';
 
 function getProtobuf() {
   return window.protobuf ? window.protobuf : protobuf;
