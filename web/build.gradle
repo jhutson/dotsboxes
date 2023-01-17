@@ -38,30 +38,6 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-task copyProtoFile(type: Copy) {
-	var sourceDir = 'src/main/proto'
-	var sourceFile = 'dotsboxes.proto'
-
-	from project(':core').fileTree(sourceDir)
-	include sourceFile
-	into('build/resources/main/static')
-
-	if (inputs.sourceFiles.empty) {
-		throw new GradleException("File not found: $sourceFile in project core under $sourceDir.")
-	}
-}
-
-task downloadJavascriptModules(type: Download) {
-	src 'https://cdn.jsdelivr.net/npm/protobufjs@7.1.2/dist/protobuf.js'
-	dest 'build/resources/main/static/modules'
-	overwrite false
-}
-
-task addExternalFilesToResources() {
-	mustRunAfter 'processResources'
-	dependsOn copyProtoFile, downloadJavascriptModules
-}
-
 bootRun.configure {
 	systemProperty "aws.accessKeyId", System.getProperty("aws.accessKeyId", "defaultKey")
 	systemProperty "aws.secretKey", System.getProperty("aws.secretKey", "defaultSecret")
@@ -80,18 +56,3 @@ task createLocalTables() {
 	finalizedBy("bootRun")
 }
 
-bootJar.configure {
-	dependsOn addExternalFilesToResources
-}
-
-resolveMainClassName.configure {
-	dependsOn addExternalFilesToResources
-}
-
-compileTestJava.configure {
-	dependsOn addExternalFilesToResources
-}
-
-jar.configure {
-	dependsOn addExternalFilesToResources
-}

@@ -1,11 +1,11 @@
-import * as protobuf from "./protobuf.js";
+import * as protobuf from "protobufjs";
+import { BitSet } from "bitset"
 
-const serviceBaseUrl = "/api/v1/game";
-const eventsBaseUrl = '/events/v1/game';
+const serviceBaseUrl = GLOBAL_API_BASE_URL;
+const eventsBaseUrl = GLOBAL_EVENTS_BASE_URL;
+const fetchMode = GLOBAL_FETCH_MODE;
+const fetchCredentials = GLOBAL_FETCH_CREDENTIALS;
 
-function getProtobuf() {
-  return window.protobuf ? window.protobuf : protobuf;
-}
 
 class BoardView {
   rowCount;
@@ -180,7 +180,7 @@ class GameClient {
   }
 
   #connectGameEvents(gameId) {
-    const eventsUrl = `ws://${window.location.host}/${eventsBaseUrl}/${gameId}`;
+    const eventsUrl = `${eventsBaseUrl}/${gameId}`;
 
     this.#disconnectGameEvents();
     this.#webSocket = new WebSocket(eventsUrl);
@@ -218,8 +218,8 @@ class GameClient {
     const serviceUrl = `${serviceBaseUrl}/${method.name.toLowerCase()}`;
     fetch(serviceUrl, {
       method: "POST",
-      mode: "same-origin",
-      credentials: "same-origin",
+      mode: fetchMode,
+      credentials: fetchCredentials,
       cache: "no-cache",
       headers: {
         "Accept": "application/x-protobuf;charset=UTF-8",
@@ -252,7 +252,6 @@ export async function getGameClient() {
 }
 
 async function loadProtoFiles() {
-  const protobuf = getProtobuf();
-  const root = await protobuf.load("../dotsboxes_service.proto");
+  const root = await protobuf.load("dotsboxes_service.proto");
   return root.resolveAll();
 }

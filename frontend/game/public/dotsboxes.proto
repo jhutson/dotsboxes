@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package dots_boxes_game;
+
+option java_multiple_files = true;
+option java_package = "com.hutsondev.dotsboxes.proto";
+option java_outer_classname = "Messages";
+
+message BoardState {
+  int32 row_count = 1;
+  int32 column_count = 2;
+  bytes player_one_lines = 3;
+  bytes player_two_lines = 4;
+  bytes player_one_boxes = 5;
+  bytes player_two_boxes = 6;
+}
+
+message GameState {
+  BoardState board = 1;
+  int32 current_player = 2;
+  optional GameOutcome outcome = 3;
+  int32 sequence_number = 4;
+}
+
+message GameOutcome {
+  int32 player_one_score = 1;
+  int32 player_two_score = 2;
+}
+
+message CreateGameRequest {
+  int32 row_count = 1;
+  int32 column_count = 2;
+  string player_one_id = 3;
+  string player_two_id = 4;
+}
+
+message CreateGameResponse {
+  string uuid = 1;
+  int32 this_player = 2;
+  GameState game = 3;
+}
+
+message GetGameRequest {
+  string uuid = 1;
+  string player_id = 2;
+}
+
+message GetGameResponse {
+  int32 this_player = 2;
+  GameState game = 1;
+}
+
+message TurnRequest {
+  string uuid = 1;
+  int32 sequence_number = 2;
+  string player_id = 3;
+  int32 row = 4;
+  int32 column = 5;
+}
+
+message TurnResponse {
+  int32 sequence_number = 1;
+  int32 last_player = 2;
+  int32 current_player = 3;
+  int32 line_row = 4;
+  int32 line_column = 5;
+  repeated int32 filled_boxes = 6;
+  optional GameOutcome outcome = 7;
+}
