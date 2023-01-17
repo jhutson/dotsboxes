@@ -10,5 +10,13 @@ services:
     volumes:
       - dynamo_data:/home/dynamodblocal/data
 
+  webserver:
+    image: "nginx:alpine-slim"
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+
+
 volumes:
   dynamo_data:
