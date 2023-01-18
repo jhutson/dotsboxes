@@ -1,4 +1,4 @@
 rootProject.name = 'dotsboxes'
 include 'core'
 include 'dbcli'
-include 'web'
+include 'game-service'
