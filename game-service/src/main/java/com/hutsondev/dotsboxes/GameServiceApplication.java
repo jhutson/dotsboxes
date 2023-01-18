@@ -8,7 +8,7 @@ import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
 
 // Temporarily disable R2DBC configuration until data/repository classes are written.
 @SpringBootApplication(exclude = {R2dbcAutoConfiguration.class})
-public class DotsboxesApplication {
+public class GameServiceApplication {
 
   @Bean
   ProtobufHttpMessageConverter protobufHttpMessageConverter() {
@@ -17,7 +17,7 @@ public class DotsboxesApplication {
 
   public static void main(String[] args) {
     System.setProperty("spring.devtools.restart.enabled", "false");
-    SpringApplication.run(DotsboxesApplication.class, args);
+    SpringApplication.run(GameServiceApplication.class, args);
   }
 
 }
