@@ -1,5 +1,6 @@
 package com.hutsondev.dotsboxes.events;
 
+import com.hutsondev.dotsboxes.model.TurnEvent;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,12 +10,12 @@ import reactor.core.publisher.Sinks;
 import reactor.core.publisher.Sinks.EmitFailureHandler;
 import reactor.core.publisher.Sinks.Many;
 
-public class GameEventPublisher {
+public class GameEventPublisher implements TurnEvents {
 
   private static final Logger logger = LoggerFactory.getLogger(GameEventPublisher.class);
 
-  private final Many<TurnResponse> turnSink;
-  private final Flux<TurnResponse> turnEvents;
+  private final Many<TurnEvent> turnSink;
+  private final Flux<TurnEvent> turnEvents;
 
   public GameEventPublisher() {
     this.turnSink = Sinks.many().multicast().onBackpressureBuffer();
@@ -25,11 +26,16 @@ public class GameEventPublisher {
     logger.debug("{} publisher completed with signalType {}", component, signalType);
   }
 
-  public Flux<TurnResponse> getTurnEvents() {
+  public Flux<TurnEvent> getTurnEvents() {
     return turnEvents;
   }
 
-  public void publishTurn(TurnResponse turnResponse) {
-    turnSink.emitNext(turnResponse, EmitFailureHandler.FAIL_FAST);
+  public void publishTurn(TurnEvent turnEvent) {
+    turnSink.emitNext(turnEvent, EmitFailureHandler.FAIL_FAST);
+  }
+
+  @Override
+  public Flux<TurnResponse> getGameTurns(String gameId) {
+    return turnEvents.filter(e -> gameId.equals(e.gameId())).map(e -> e.turnResponse());
   }
 }

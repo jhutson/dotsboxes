@@ -1,6 +1,7 @@
 package com.hutsondev.dotsboxes.events;
 
 import com.hutsondev.dotsboxes.proto.StateConverter;
+import com.hutsondev.dotsboxes.proto.TurnResponse;
 import java.util.Optional;
 import lombok.NonNull;
 import org.slf4j.Logger;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.socket.CloseStatus;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 import org.springframework.web.reactive.socket.WebSocketSession;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SignalType;
 
@@ -18,10 +20,10 @@ public class GameEventHandler implements WebSocketHandler {
 
   private static final Logger logger = LoggerFactory.getLogger(GameEventHandler.class);
 
-  private final GameEventPublisher gameEventPublisher;
+  private final TurnEvents turnEvents;
 
-  public GameEventHandler(@NonNull GameEventPublisher gameEventPublisher) {
-    this.gameEventPublisher = gameEventPublisher;
+  public GameEventHandler(@NonNull TurnEvents turnEvents) {
+    this.turnEvents = turnEvents;
   }
 
   private Optional<String> getGameIdFromPath(String path) {
@@ -53,12 +55,15 @@ public class GameEventHandler implements WebSocketHandler {
       return session.close(CloseStatus.POLICY_VIOLATION);
     }
 
-    logger.debug("[{}] Game ID = {}", sessionId, maybeGameId.get());
+    String gameId = maybeGameId.get();
+    logger.debug("[{}] Game ID = {}", sessionId, gameId);
+
+    Flux<TurnResponse> gameTurns = turnEvents.getGameTurns(gameId);
 
     return Mono.zip(
         session.receive().doFinally(s -> logSignal("receive", sessionId, s)).then(),
         session.send(
-            gameEventPublisher.getTurnEvents()
+            gameTurns
                 .map(e ->
                     session.binaryMessage(factory -> {
                       DataBuffer buffer = factory.allocateBuffer(e.getSerializedSize());

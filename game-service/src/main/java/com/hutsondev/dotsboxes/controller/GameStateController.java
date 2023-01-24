@@ -15,7 +15,6 @@ import com.hutsondev.dotsboxes.proto.TurnResponse;
 import com.hutsondev.dotsboxes.repository.GameStore;
 import java.util.Optional;
 import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -99,7 +98,8 @@ public class GameStateController {
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
   TurnResponse markLine(@RequestBody TurnRequest request) {
-    GameSession gameSession = getCurrentGame(request.getUuid());
+    final String gameId = request.getUuid();
+    GameSession gameSession = getCurrentGame(gameId);
 
     if (request.getSequenceNumber() != gameSession.sequenceNumber()) {
       throw new ResponseStatusException(HttpStatus.CONFLICT);
@@ -141,7 +141,7 @@ public class GameStateController {
     }
 
     TurnResponse turnResponse = builder.build();
-    gameEventPublisher.publishTurn(turnResponse);
+    gameEventPublisher.publishTurn(gameId, turnResponse);
     return turnResponse;
   }
 }

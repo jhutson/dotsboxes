@@ -11,7 +11,6 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.reactive.socket.WebSocketHandler;
 
 @Configuration
-@Profile("!create-db")
 public class WebSocketConfiguration {
 
   private final GameEventHandler gameEventHandler;
