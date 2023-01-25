@@ -2,6 +2,7 @@ package com.hutsondev.dotsboxes.events.impl;
 
 import com.hutsondev.dotsboxes.events.GameEventPublisher;
 import com.hutsondev.dotsboxes.proto.StateConverter;
+import com.hutsondev.dotsboxes.proto.TurnEvent;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import java.util.Map;
 import lombok.NonNull;
@@ -28,14 +29,14 @@ public class SnsGameEventPublisher implements GameEventPublisher {
   }
 
   private PublishRequest createRequest(String gameId, TurnResponse turnResponse) {
+    String turnEventBody = StateConverter.toJsonString(
+        TurnEvent.newBuilder()
+            .setGameId(gameId)
+            .setTurn(turnResponse));
+
     return PublishRequest.builder()
         .topicArn(topicArn)
-        .messageAttributes(Map.of(ATTRIBUTE_GAME_ID,
-            MessageAttributeValue.builder()
-                .dataType("String")
-                .stringValue(gameId)
-                .build()))
-        .message(StateConverter.toJsonString(turnResponse))
+        .message(turnEventBody)
         .build();
   }
 

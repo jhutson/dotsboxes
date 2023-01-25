@@ -1,6 +1,6 @@
 package com.hutsondev.dotsboxes.events;
 
-import com.hutsondev.dotsboxes.model.TurnEvent;
+import com.hutsondev.dotsboxes.proto.TurnEvent;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,16 +26,12 @@ public class GameEventPublisher implements TurnEvents {
     logger.debug("{} publisher completed with signalType {}", component, signalType);
   }
 
-  public Flux<TurnEvent> getTurnEvents() {
-    return turnEvents;
-  }
-
   public void publishTurn(TurnEvent turnEvent) {
     turnSink.emitNext(turnEvent, EmitFailureHandler.FAIL_FAST);
   }
 
   @Override
   public Flux<TurnResponse> getGameTurns(String gameId) {
-    return turnEvents.filter(e -> gameId.equals(e.gameId())).map(e -> e.turnResponse());
+    return turnEvents.filter(e -> gameId.equals(e.getGameId())).map(e -> e.getTurn());
   }
 }

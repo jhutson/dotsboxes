@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.events.impl;
+package com.hutsondev.dotsboxes;
 
 import java.net.URI;
 import org.springframework.beans.factory.annotation.Value;
