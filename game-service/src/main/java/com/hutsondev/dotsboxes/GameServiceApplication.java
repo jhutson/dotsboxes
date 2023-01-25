@@ -6,8 +6,7 @@ import org.springframework.boot.autoconfigure.r2dbc.R2dbcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.converter.protobuf.ProtobufHttpMessageConverter;
 
-// Temporarily disable R2DBC configuration until data/repository classes are written.
-@SpringBootApplication(exclude = {R2dbcAutoConfiguration.class})
+@SpringBootApplication
 public class GameServiceApplication {
 
   @Bean

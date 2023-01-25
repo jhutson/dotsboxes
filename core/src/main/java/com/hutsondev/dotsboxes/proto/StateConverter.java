@@ -2,7 +2,9 @@ package com.hutsondev.dotsboxes.proto;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.CodedOutputStream;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
 import com.hutsondev.dotsboxes.core.Board;
 import com.hutsondev.dotsboxes.core.BoardBuilder;
 import com.hutsondev.dotsboxes.core.BoardView;
@@ -16,6 +18,8 @@ import java.util.Optional;
 import lombok.NonNull;
 
 public class StateConverter {
+
+  private static final JsonFormat.Printer jsonPrinter = JsonFormat.printer().omittingInsignificantWhitespace();
 
   public static BoardState toBoardState(@NonNull BoardView board) {
     return BoardState.newBuilder()
@@ -74,6 +78,14 @@ public class StateConverter {
       message.writeTo(codedOutputStream);
       codedOutputStream.flush();
     } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static String toJsonString(@NonNull Message message) {
+    try {
+      return jsonPrinter.print(message);
+    } catch (InvalidProtocolBufferException e) {
       throw new RuntimeException(e);
     }
   }

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/v1/game")
@@ -97,7 +98,7 @@ public class GameStateController {
   @PostMapping(value = "/markline",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  TurnResponse markLine(@RequestBody TurnRequest request) {
+  Mono<TurnResponse> markLine(@RequestBody TurnRequest request) {
     final String gameId = request.getUuid();
     GameSession gameSession = getCurrentGame(gameId);
 
@@ -141,7 +142,6 @@ public class GameStateController {
     }
 
     TurnResponse turnResponse = builder.build();
-    gameEventPublisher.publishTurn(gameId, turnResponse);
-    return turnResponse;
+    return gameEventPublisher.publishTurn(gameId, turnResponse).then(Mono.just(turnResponse));
   }
 }
