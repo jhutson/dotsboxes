@@ -3,7 +3,7 @@ package com.hutsondev.dotsboxes.controller;
 import com.hutsondev.dotsboxes.core.Outcome;
 import com.hutsondev.dotsboxes.core.Player;
 import com.hutsondev.dotsboxes.core.TurnResult;
-import com.hutsondev.dotsboxes.events.GameEventPublisher;
+import com.hutsondev.dotsboxes.events.TurnEventPublisher;
 import com.hutsondev.dotsboxes.model.GameSession;
 import com.hutsondev.dotsboxes.proto.CreateGameRequest;
 import com.hutsondev.dotsboxes.proto.CreateGameResponse;
@@ -32,13 +32,13 @@ public class GameStateController {
   public static final String PROTOBUF_MEDIA_TYPE = "application/x-protobuf;charset=UTF-8";
 
   private final GameStore gameStore;
-  private final GameEventPublisher gameEventPublisher;
+  private final TurnEventPublisher turnEventPublisher;
 
   public GameStateController(
       @NonNull GameStore gameStore,
-      @NonNull GameEventPublisher gameEventPublisher) {
+      @NonNull TurnEventPublisher turnEventPublisher) {
     this.gameStore = gameStore;
-    this.gameEventPublisher = gameEventPublisher;
+    this.turnEventPublisher = turnEventPublisher;
   }
 
   private GameSession getCurrentGame(String gameId) {
@@ -142,6 +142,6 @@ public class GameStateController {
     }
 
     TurnResponse turnResponse = builder.build();
-    return gameEventPublisher.publishTurn(gameId, turnResponse).then(Mono.just(turnResponse));
+    return turnEventPublisher.publishTurn(gameId, turnResponse).then(Mono.just(turnResponse));
   }
 }

@@ -67,8 +67,3 @@ message TurnResponse {
   repeated int32 filled_boxes = 6;
   optional GameOutcome outcome = 7;
 }
-
-message TurnEvent {
-  string gameId = 1;
-  TurnResponse turn = 2;
-}

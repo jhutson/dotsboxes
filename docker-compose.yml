@@ -22,7 +22,6 @@ services:
     volumes:
       - ./nginx:/etc/nginx/conf.d/
 
-
 volumes:
   dynamo_data:
   localstack_data:

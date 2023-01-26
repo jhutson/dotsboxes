@@ -1,5 +1,6 @@
-package com.hutsondev.dotsboxes.events;
+package com.hutsondev.dotsboxes.events.impl;
 
+import com.hutsondev.dotsboxes.events.GameEventHandler;
 import java.util.Map;
 import lombok.NonNull;
 import org.springframework.context.annotation.Bean;
