@@ -7,7 +7,7 @@ This project contains a set of services that make up an online version of the [D
 ## Getting Started
 
 ### Docker Containers
-In the root directory, run ```docker compose up -d``` to start the docker containers for nginx, DynamoDB, and LocalStack. These are used by the backend.
+In the root directory, run ```docker compose up -d``` to start the docker containers for nginx and DynamoDB. These are used by the backend.
 
 ### Backend
 The backend projects require Java 17. Recommend to use [SDKMAN!](https://sdkman.io) to manage JDK installs. To install Java 11 with SDKMAN!, run:
@@ -42,30 +42,7 @@ Run this command to create the local DynamoDB table that stores game state:
 
 ```./gradlew game-service:createLocalTables```
 
-AWS configuration needs to be modified to point at LocalStack. One way to do this is to modify the ```config``` and ```credentials``` files under ```~/.aws```.
-
-For ```~/.aws/config```, ensure the default profile is using the right region:
-
-```
-[default]
-region=us-west-2
-```
-
-For ```~/.aws/credentials```, use test values:
-
-```
-[default]
-aws_access_key_id="test"
-aws_secret_access_key="test"
-```
-
-Once the AWS configuration is in place, run this command to set up the SNS game events topic in LocalStack:
-
-```
-aws --endpoint-url=http://localhost:4566 sns create-topic --name game-turn-events
-```
-
-With the steps completed for docker, backend, and frontend, open a browser and navigate to [http://localhost](http://localhost). You should see the URL changed to http://localhost?gameUUID, where gameUUID is an identifier for a new game. This browser window is for player one.
+With the steps completed for docker, backend, and frontend, open a browser and navigate to [http://localhost](http://localhost). You should see the URL changed to ```http://localhost?gameUUID```, where gameUUID is an identifier for a new game. This browser window is for player one.
 
 To play as player two, copy the URL and paste it in a new browser, appending `#p2` to the URL. 
 

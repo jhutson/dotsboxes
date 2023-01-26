@@ -1,5 +1,6 @@
 package com.hutsondev.dotsboxes;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.config.CorsRegistry;
@@ -12,14 +13,15 @@ public class CorsConfiguration implements WebFluxConfigurer {
 
   private final String allowedOrigin;
 
-  public CorsConfiguration(@Value("${com.hutsondev.cors.allowed-origin}") String allowedOrigin) {
+  public CorsConfiguration(
+      @NonNull @Value("${com.hutsondev.cors.allowed-origin:}") String allowedOrigin) {
     this.allowedOrigin = allowedOrigin;
   }
 
   @Override
   public void addCorsMappings(CorsRegistry corsRegistry) {
 
-    if (allowedOrigin != null) {
+    if (allowedOrigin.length() > 0) {
       corsRegistry.addMapping("/**")
           .allowedOrigins(allowedOrigin)
           .maxAge(3600);
