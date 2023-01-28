@@ -163,7 +163,7 @@ async function loadGameState(gameClient, gameId, playerOneId, playerTwoId) {
 
   try {
     if (gameId.length === 0) {
-      return await gameClient.createGame(1, 1, playerOneId, playerTwoId, playerId);
+      // return await gameClient.createGame(1, 1, playerOneId, playerTwoId, playerId);
     } else {
       return await gameClient.getGame(gameId, playerId);
     }

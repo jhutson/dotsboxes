@@ -1,0 +1,36 @@
+server:
+  port: 8503
+
+logging:
+  level:
+    web: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+
+spring:
+  main:
+    banner-mode: off
+  security:
+    oauth2:
+      client:
+        registration:
+          cognito:
+            client-authentication-method: none
+            client-id: ${COGNITO_CLIENT_ID}
+            scope: openid
+            redirect-uri: http://localhost/login/oauth2/code/cognito
+            client-name: Dots and Boxes Game
+        provider:
+          cognito:
+            issuer-uri: https://cognito-idp.us-west-2.amazonaws.com/us-west-2_96M292U2w
+            user-name-attribute: cognito:username
+
+com:
+  hutsondev:
+    cors:
+      allowed-origin: http://localhost
+    dynamodb:
+      endpoint-url: http://localhost:9000
+      table:
+        users: dotsboxes-users
