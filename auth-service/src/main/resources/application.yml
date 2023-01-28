@@ -11,6 +11,9 @@ logging:
 spring:
   main:
     banner-mode: off
+  redis:
+    host: localhost
+    port: 6379
   security:
     oauth2:
       client:

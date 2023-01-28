@@ -6,14 +6,19 @@ services:
     image: "amazon/dynamodb-local:latest"
     user: root
     ports:
-      - 9000:8000
+      - "9000:8000"
     volumes:
       - dynamo_data:/home/dynamodblocal/data
+
+  redis:
+    image: redis:7.0.8-alpine
+    ports:
+      - "6379:6379"
 
   webserver:
     image: "nginx:alpine-slim"
     ports:
-      - 80:80
+      - "80:80"
     volumes:
       - ./nginx:/etc/nginx/conf.d/
 
