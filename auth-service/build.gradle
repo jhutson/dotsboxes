@@ -15,12 +15,13 @@ repositories {
 
 dependencies {
 	implementation platform('org.springframework.session:spring-session-bom:3.0.0')
+	implementation 'org.springframework.session:spring-session-core'
+	implementation 'org.springframework.session:spring-session-data-redis'
+
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	implementation 'org.springframework.session:spring-session-core'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.session:spring-session-data-redis'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
 	implementation platform('software.amazon.awssdk:bom:2.18.35')
@@ -33,8 +34,7 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+
+	systemProperty "aws.region", System.getProperty("aws.region", "us-west-2")
 }
 
-bootRun.configure {
-	systemProperty "com.hutsondev.auth.client-id", System.getProperty("com.hutsondev.auth.client-id", "missing")
-}

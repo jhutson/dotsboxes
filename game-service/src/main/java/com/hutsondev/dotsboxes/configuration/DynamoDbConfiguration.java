@@ -1,5 +1,6 @@
-package com.hutsondev.dotsboxes.repository.impl;
+package com.hutsondev.dotsboxes.configuration;
 
+import com.hutsondev.dotsboxes.repository.impl.GameSessionEntity;
 import java.net.URI;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;

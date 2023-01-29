@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.events.impl;
+package com.hutsondev.dotsboxes.configuration;
 
 import com.hutsondev.dotsboxes.events.impl.GameEvents;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;

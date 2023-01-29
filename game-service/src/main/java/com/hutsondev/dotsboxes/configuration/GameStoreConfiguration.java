@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.repository.impl;
+package com.hutsondev.dotsboxes.configuration;
 
 import com.hutsondev.dotsboxes.repository.GameStore;
 import lombok.NonNull;

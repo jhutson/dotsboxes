@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.events.impl;
+package com.hutsondev.dotsboxes.configuration;
 
 import com.hutsondev.dotsboxes.events.GameEventHandler;
 import java.util.Map;

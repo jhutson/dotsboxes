@@ -1,4 +1,4 @@
-package com.hutsondev.lobbyservice;
+package com.hutsondev.dotsboxes.configuration;
 
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,8 +13,7 @@ public class CorsConfiguration implements WebFluxConfigurer {
 
   private final String allowedOrigin;
 
-  public CorsConfiguration(
-      @NonNull @Value("${com.hutsondev.cors.allowed-origin:}") String allowedOrigin) {
+  public CorsConfiguration(@NonNull @Value("${com.hutsondev.cors.allowed-origin:}") String allowedOrigin) {
     this.allowedOrigin = allowedOrigin;
   }
 

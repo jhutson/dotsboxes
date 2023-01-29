@@ -1,0 +1,24 @@
+server:
+  port: 8502
+
+logging:
+  level:
+    web: DEBUG
+
+spring:
+  main:
+    banner-mode: off
+  redis:
+    host: localhost
+    port: 6379
+
+com:
+  hutsondev:
+    cors:
+      allowed-origin: http://localhost
+    dynamodb:
+      endpoint-url: http://localhost:9000
+      table:
+        game-sessions: dotsboxes-game-sessions
+        users: dotsboxes-users
+
