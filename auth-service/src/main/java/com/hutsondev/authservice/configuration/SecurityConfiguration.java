@@ -18,6 +18,7 @@ public class SecurityConfiguration {
         .authorizeExchange(exchange ->
             exchange.anyExchange().authenticated())
         .oauth2Login(withDefaults())
+        .logout(withDefaults())
         .build();
   }
 }

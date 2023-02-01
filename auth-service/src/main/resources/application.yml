@@ -1,5 +1,9 @@
 server:
   port: 8503
+  reactive:
+    session:
+      cookie:
+        sameSite: Strict
 
 logging:
   level:
@@ -33,7 +37,4 @@ com:
   hutsondev:
     cors:
       allowed-origin: http://localhost
-    dynamodb:
-      endpoint-url: http://localhost:9000
-      table:
-        users: dotsboxes-users
+
