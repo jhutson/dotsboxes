@@ -13,14 +13,13 @@ import com.hutsondev.dotsboxes.proto.StateConverter;
 import com.hutsondev.dotsboxes.proto.TurnRequest;
 import com.hutsondev.dotsboxes.proto.TurnResponse;
 import com.hutsondev.dotsboxes.repository.GameStore;
+import java.security.Principal;
 import java.util.Optional;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
@@ -58,24 +57,34 @@ public class GameStateController {
   @PostMapping(value = "/create",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  CreateGameResponse createGame(@RequestBody CreateGameRequest request) {
-    GameSession gameSession = gameStore.create(
-        request.getRowCount(),
-        request.getColumnCount(),
-        request.getPlayerOneId(),
-        request.getPlayerTwoId());
+  CreateGameResponse createGame(@RequestBody CreateGameRequest request, Principal principal) {
+    if (principal.getName().equals(request.getPlayerOneId()) ||
+        principal.getName().equals(request.getPlayerTwoId())) {
 
-    return CreateGameResponse.newBuilder()
-        .setGame(StateConverter.toGameState(gameSession.game(), gameSession.sequenceNumber()))
-        .setUuid(gameSession.gameId())
-        .setThisPlayer(Player.ONE.getIndex())
-        .build();
+      GameSession gameSession = gameStore.create(
+          request.getRowCount(),
+          request.getColumnCount(),
+          request.getPlayerOneId(),
+          request.getPlayerTwoId());
+
+      return CreateGameResponse.newBuilder()
+          .setGame(StateConverter.toGameState(gameSession.game(), gameSession.sequenceNumber()))
+          .setUuid(gameSession.gameId())
+          .setThisPlayer(Player.ONE.getIndex())
+          .build();
+    } else {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
   }
 
   @PostMapping(value = "/get",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  GetGameResponse getGame(@RequestBody GetGameRequest request) {
+  GetGameResponse getGame(@RequestBody GetGameRequest request, Principal principal) {
+    if (!request.getPlayerId().equals(principal.getName())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     GameSession gameSession = getCurrentGame(request.getUuid());
     Player player = validatePlayerId(gameSession, request.getPlayerId());
 
@@ -85,20 +94,14 @@ public class GameStateController {
         .build();
   }
 
-  // Temporary endpoint for testing.
-  @PostMapping(value = "/clear",
-      consumes = {MediaType.TEXT_PLAIN_VALUE})
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  void clearGame(@RequestBody String gameId) {
-    if (!gameStore.remove(gameId)) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-  }
-
   @PostMapping(value = "/markline",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  Mono<TurnResponse> markLine(@RequestBody TurnRequest request) {
+  Mono<TurnResponse> markLine(@RequestBody TurnRequest request, Principal principal) {
+    if (!request.getPlayerId().equals(principal.getName())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     final String gameId = request.getUuid();
     GameSession gameSession = getCurrentGame(gameId);
 
