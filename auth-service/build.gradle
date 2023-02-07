@@ -24,9 +24,6 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-	implementation platform('software.amazon.awssdk:bom:2.18.35')
-	implementation 'software.amazon.awssdk:dynamodb-enhanced'
-
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'

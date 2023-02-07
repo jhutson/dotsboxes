@@ -1,0 +1,7 @@
+com:
+  hutsondev:
+    dynamodb:
+      endpoint-url: http://localhost:9000
+      table:
+        game-sessions: test-dotsboxes-game-sessions
+        players: test-dotsboxest-players

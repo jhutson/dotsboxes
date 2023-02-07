@@ -1,28 +1,24 @@
-package com.hutsondev.dotsboxes.configuration;
+package com.hutsondev.dynamodb.configuration;
 
-import com.hutsondev.dotsboxes.repository.impl.GameSessionEntity;
+import com.hutsondev.dynamodb.repository.GameSessionEntity;
 import java.net.URI;
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Scope;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
-@Lazy
 @Configuration
-public class DynamoDbConfiguration {
+@EnableConfigurationProperties(DynamoDbProperties.class)
+public class DynamoDbAutoConfiguration {
 
   @Bean
-  @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-  public DynamoDbEnhancedClient dynamoDbClient(
-      @NonNull @Value("${com.hutsondev.dynamodb.endpoint-url:}") String endpointUrl) {
-
+  @Lazy
+  public DynamoDbEnhancedClient dynamoDbClient(DynamoDbProperties properties) {
+    String endpointUrl = properties.getEndpointUrl();
     DynamoDbClient client;
 
     if (endpointUrl.length() == 0) {
@@ -35,10 +31,11 @@ public class DynamoDbConfiguration {
   }
 
   @Bean
-  @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+  @Lazy
   public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient,
-      @Value("${com.hutsondev.dynamodb.table.game-sessions}") String gameSessionsTableName) {
-    return dynamoDbClient.table(gameSessionsTableName,
-        TableSchema.fromBean(GameSessionEntity.class));
+      DynamoDbProperties properties) {
+
+    String tableName = properties.getTable().getGameSessions();
+    return dynamoDbClient.table(tableName, TableSchema.fromBean(GameSessionEntity.class));
   }
 }

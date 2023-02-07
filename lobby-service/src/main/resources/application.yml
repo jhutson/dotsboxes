@@ -20,5 +20,5 @@ com:
       endpoint-url: http://localhost:9000
       table:
         game-sessions: dotsboxes-game-sessions
-        users: dotsboxes-users
+        players: dotsboxes-players
 

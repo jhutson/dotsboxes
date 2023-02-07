@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.repository.impl;
+package com.hutsondev.dynamodb.repository;
 
 import lombok.Data;
 import lombok.Getter;

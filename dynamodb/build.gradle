@@ -1,0 +1,48 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '3.0.2' apply false
+    id "io.freefair.lombok" version "6.5.1"
+}
+
+group 'com.hutsondev'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    implementation platform('software.amazon.awssdk:bom:2.18.35')
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
+
+    api 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//task createLocalTables() {
+//    group "application"
+//    description "Creates tables in local DynamoDB instance."
+//
+//    doFirst {
+//        tasks.bootRun.configure {
+//            systemProperty("spring.profiles.active", "create-db")
+//        }
+//    }
+//    finalizedBy("bootRun")
+//}
