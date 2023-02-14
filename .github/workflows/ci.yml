@@ -19,9 +19,9 @@ jobs:
     services:
       dynamodb-local:
         image: "amazon/dynamodb-local:latest"
-        user: root
         ports:
           - "9000:8000"
+        options: "--user root"
 
     steps:
     - uses: actions/checkout@v3
