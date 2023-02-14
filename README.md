@@ -9,6 +9,22 @@ This project contains a set of services that make up an online version of the [D
 ### Docker Containers
 In the root directory, run ```docker compose up -d``` to start the docker containers for nginx and DynamoDB. These are used by the backend.
 
+### DynamoDB schema creation
+On first set up of your local environment, run this script to create the initial DynamoDB schema:
+
+```
+cd deployment
+python3.9 -m venv --upgrade-deps env && source env/bin/activate && pip install -r requirements.txt
+python create-local-dynamodb-schema.py
+```
+
+After that, run this command each time you start a new shell session.
+
+```source deployment/dev/env```
+
+This sets the environment variables referenced by the service modules that define the names of the DynamoDB tables.
+
+
 ### Backend
 The backend projects require Java 17. Recommend to use [SDKMAN!](https://sdkman.io) to manage JDK installs. To install Java 11 with SDKMAN!, run:
 
@@ -37,10 +53,6 @@ With node and dependencies installed, you can start the local vite server by run
 ```npm run dev```
 
 ### Test local setup
-
-Run this command to create the local DynamoDB table that stores game state:
-
-```./gradlew game-service:createLocalTables```
 
 With the steps completed for docker, backend, and frontend, open a browser and navigate to [http://localhost](http://localhost). You should see the URL changed to ```http://localhost?gameUUID```, where gameUUID is an identifier for a new game. This browser window is for player one.
 

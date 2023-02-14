@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >-
-  Create DynamoDB table for storing game session information.
+  Create DynamoDB tables for storing player and game session data.
 Resources:
   dotsboxesGameSessions:
     Type: 'AWS::DynamoDB::Table'
@@ -20,6 +20,7 @@ Resources:
       KeySchema:
         - AttributeName: 'id'
           KeyType: HASH
+
 Outputs:
   GamesSessionsTableName:
     Value: !Ref dotsboxesGameSessions

@@ -2,16 +2,16 @@ package com.hutsondev.dynamodb.configuration;
 
 import com.hutsondev.dynamodb.repository.GameSessionEntity;
 import java.net.URI;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(DynamoDbProperties.class)
 public class DynamoDbAutoConfiguration {
 

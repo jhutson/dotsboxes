@@ -22,6 +22,6 @@ com:
     dynamodb:
       endpoint-url: http://localhost:9000
       table:
-        game-sessions: dotsboxes-game-sessions
-        players: dotsboxes-players
+        game-sessions: ${HDEV_TABLE_GAME_SESSIONS:missing}
+        players: ${HDEV_TABLE_PLAYERS:missing}
     gamestore: dynamodb

@@ -3,5 +3,5 @@ com:
     dynamodb:
       endpoint-url: http://localhost:9000
       table:
-        game-sessions: test-dotsboxes-game-sessions
-        players: test-dotsboxest-players
+        game-sessions: test-dotsboxesGameSessions
+        players: test-dotsboxesPlayers
