@@ -1,4 +1,4 @@
-package com.hutsondev.dynamodb;
+package com.hutsondev.dotsboxes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

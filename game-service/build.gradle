@@ -31,8 +31,9 @@ dependencies {
 	implementation 'software.amazon.awssdk:dynamodb-enhanced'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation project(':dynamodb-test')
 }
 
 tasks.named('test') {

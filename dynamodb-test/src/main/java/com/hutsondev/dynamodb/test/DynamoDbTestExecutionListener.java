@@ -1,4 +1,4 @@
-package com.hutsondev.dynamodb;
+package com.hutsondev.dynamodb.test;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -67,9 +67,11 @@ public class DynamoDbTestExecutionListener implements TestExecutionListener, Ord
   public void beforeTestMethod(TestContext testContext) throws Exception {
     Map<Field, DynamoDbTable<?>> testTables = getTestTables(testContext);
 
-    for (DynamoDbTable<?> table : testTables.values()) {
-      deleteTable(table);
-      table.createTable();
+    if (testTables != null) {
+      for (DynamoDbTable<?> table : testTables.values()) {
+        deleteTable(table);
+        table.createTable();
+      }
     }
   }
 
@@ -77,8 +79,10 @@ public class DynamoDbTestExecutionListener implements TestExecutionListener, Ord
   public void afterTestMethod(TestContext testContext) throws Exception {
     Map<Field, DynamoDbTable<?>> testTables = getTestTables(testContext);
 
-    for (DynamoDbTable<?> table : testTables.values()) {
-      deleteTable(table);
+    if (testTables != null) {
+      for (DynamoDbTable<?> table : testTables.values()) {
+        deleteTable(table);
+      }
     }
   }
 
@@ -110,7 +114,7 @@ public class DynamoDbTestExecutionListener implements TestExecutionListener, Ord
       className = className.substring(0, className.length() - "Entity".length());
     }
 
-    String tableName = String.format("test-%1$s-%2$tY%2$tm%2$td-%2$tH%2$tM%2$tS%2$tL", className, Calendar.getInstance());
+    String tableName = String.format("test-%1$s-%2$tY%2$tm%2$td-%2$tH%2$tM%2$tS%2$tL-%3$d", className, Calendar.getInstance(), testContext.getTestInstance().hashCode());
     return getClient(testContext).table(tableName, TableSchema.fromBean(entityClass));
   }
 }

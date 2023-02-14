@@ -1,0 +1,32 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot' version '3.0.2' apply false
+}
+
+group 'com.hutsondev'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+dependencyManagement {
+    imports {
+        mavenBom org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
+    }
+}
+
+dependencies {
+    implementation platform('software.amazon.awssdk:bom:2.18.35')
+    implementation 'software.amazon.awssdk:dynamodb-enhanced'
+
+    api 'org.springframework.boot:spring-boot-starter-test'
+    api 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+}
+
+test {
+    useJUnitPlatform()
+}
