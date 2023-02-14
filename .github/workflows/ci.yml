@@ -14,8 +14,14 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
+
+    services:
+      dynamodb-local:
+        image: "amazon/dynamodb-local:latest"
+        user: root
+        ports:
+          - "9000:8000"
 
     steps:
     - uses: actions/checkout@v3
