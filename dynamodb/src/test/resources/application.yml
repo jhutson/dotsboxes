@@ -1,0 +1,5 @@
+com:
+  hutsondev:
+    dynamodb:
+      endpoint-url: http://localhost:9000
+
