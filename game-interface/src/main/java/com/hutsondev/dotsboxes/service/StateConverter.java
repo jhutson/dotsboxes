@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.proto;
+package com.hutsondev.dotsboxes.service;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.CodedOutputStream;

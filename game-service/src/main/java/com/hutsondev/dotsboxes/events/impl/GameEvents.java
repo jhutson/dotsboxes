@@ -2,7 +2,7 @@ package com.hutsondev.dotsboxes.events.impl;
 
 import com.hutsondev.dotsboxes.events.TurnEventPublisher;
 import com.hutsondev.dotsboxes.events.TurnEvents;
-import com.hutsondev.dotsboxes.proto.TurnResponse;
+import com.hutsondev.dotsboxes.service.TurnResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;

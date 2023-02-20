@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
 	implementation project(':core')
+	implementation project(':game-interface')
 	implementation project(':dynamodb')
 
 	implementation platform('org.springframework.session:spring-session-bom:3.0.0')

@@ -1,7 +1,7 @@
 package com.hutsondev.dotsboxes.events.impl;
 
 import com.hutsondev.dotsboxes.events.TurnEventPublisher;
-import com.hutsondev.dotsboxes.proto.TurnResponse;
+import com.hutsondev.dotsboxes.service.TurnResponse;
 import reactor.core.publisher.Mono;
 
 public class StubbedTurnEventPublisher implements TurnEventPublisher {

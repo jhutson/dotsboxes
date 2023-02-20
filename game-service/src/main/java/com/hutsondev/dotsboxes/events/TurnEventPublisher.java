@@ -1,6 +1,6 @@
 package com.hutsondev.dotsboxes.events;
 
-import com.hutsondev.dotsboxes.proto.TurnResponse;
+import com.hutsondev.dotsboxes.service.TurnResponse;
 import reactor.core.publisher.Mono;
 
 public interface TurnEventPublisher {

@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id 'io.freefair.lombok' version '6.5.1'
-    id "com.google.protobuf" version "0.9.1"
 }
 
 group = 'com.hutsondev'
@@ -14,12 +13,8 @@ repositories {
 }
 
 dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api 'com.google.protobuf:protobuf-java:3.21.10'
-
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.protobuf:protobuf-java-util:3.21.10'
-
+    // api: This dependency is exported to consumers, that is to say found on their compile classpath.
+    // implementation:  This dependency is used internally, and not exposed to consumers on their own compile classpath.
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
 }
@@ -28,10 +23,3 @@ tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
 }
-
-protobuf {
-    protoc {
-        artifact = 'com.google.protobuf:protoc:3.21.10'
-    }
-}
-

@@ -1,4 +1,4 @@
-package com.hutsondev.dotsboxes.proto;
+package com.hutsondev.dotsboxes.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

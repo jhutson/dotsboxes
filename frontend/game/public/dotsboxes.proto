@@ -3,7 +3,7 @@ syntax = "proto3";
 package dots_boxes_game;
 
 option java_multiple_files = true;
-option java_package = "com.hutsondev.dotsboxes.proto";
+option java_package = "com.hutsondev.dotsboxes.service";
 option java_outer_classname = "Messages";
 
 message BoardState {
@@ -66,4 +66,10 @@ message TurnResponse {
   int32 line_column = 5;
   repeated int32 filled_boxes = 6;
   optional GameOutcome outcome = 7;
+}
+
+service GameService {
+  rpc Create (CreateGameRequest) returns (CreateGameResponse);
+  rpc Get (GetGameRequest) returns (GetGameResponse);
+  rpc MarkLine (TurnRequest) returns (TurnResponse);
 }

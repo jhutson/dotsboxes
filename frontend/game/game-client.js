@@ -252,6 +252,6 @@ export async function getGameClient() {
 }
 
 async function loadProtoFiles() {
-  const root = await protobuf.load("dotsboxes_service.proto");
+  const root = await protobuf.load("dotsboxes.proto");
   return root.resolveAll();
 }

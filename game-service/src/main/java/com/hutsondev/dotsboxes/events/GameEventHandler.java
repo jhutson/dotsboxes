@@ -1,7 +1,7 @@
 package com.hutsondev.dotsboxes.events;
 
-import com.hutsondev.dotsboxes.proto.StateConverter;
-import com.hutsondev.dotsboxes.proto.TurnResponse;
+import com.hutsondev.dotsboxes.service.StateConverter;
+import com.hutsondev.dotsboxes.service.TurnResponse;
 import java.util.Optional;
 import lombok.NonNull;
 import org.slf4j.Logger;
