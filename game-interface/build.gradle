@@ -1,3 +1,9 @@
+buildscript {
+    ext {
+        protobufVersion = '3.21.10'
+    }
+}
+
 plugins {
     id 'java-library'
     id "com.google.protobuf" version "0.9.1"
@@ -15,11 +21,11 @@ repositories {
 
 dependencies {
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api 'com.google.protobuf:protobuf-java:3.21.10'
     api project(':core')
+    api "com.google.protobuf:protobuf-java:${protobufVersion}"
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation 'com.google.protobuf:protobuf-java-util:3.21.10'
+    implementation "com.google.protobuf:protobuf-java-util:${protobufVersion}"
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
     testImplementation 'org.assertj:assertj-core:3.23.1'
@@ -32,7 +38,7 @@ tasks.named('test') {
 
 protobuf {
     protoc {
-        artifact = 'com.google.protobuf:protoc:3.21.10'
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
     }
 }
 

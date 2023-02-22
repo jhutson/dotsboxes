@@ -57,7 +57,8 @@ public class GameStateController {
   @PostMapping(value = "/create",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  CreateGameResponse createGame(@RequestBody CreateGameRequest request, Principal principal) {
+  public CreateGameResponse createGame(@RequestBody CreateGameRequest request,
+      Principal principal) {
     if (principal.getName().equals(request.getPlayerOneId()) ||
         principal.getName().equals(request.getPlayerTwoId())) {
 
@@ -80,7 +81,7 @@ public class GameStateController {
   @PostMapping(value = "/get",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  GetGameResponse getGame(@RequestBody GetGameRequest request, Principal principal) {
+  public GetGameResponse getGame(@RequestBody GetGameRequest request, Principal principal) {
     if (!request.getPlayerId().equals(principal.getName())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -97,7 +98,7 @@ public class GameStateController {
   @PostMapping(value = "/markline",
       consumes = PROTOBUF_MEDIA_TYPE,
       produces = PROTOBUF_MEDIA_TYPE)
-  Mono<TurnResponse> markLine(@RequestBody TurnRequest request, Principal principal) {
+  public Mono<TurnResponse> markLine(@RequestBody TurnRequest request, Principal principal) {
     if (!request.getPlayerId().equals(principal.getName())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

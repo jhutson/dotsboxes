@@ -72,9 +72,9 @@ class GameClient {
   constructor(protoRoot) {
     this.#protoRoot = protoRoot;
 
-    const serviceFactory = protoRoot.lookup("dots_boxes_game.GameService");
+    const serviceFactory = protoRoot.lookup("hutsondev.dotsboxes.v1.Game");
     this.#service = serviceFactory.create(this.#fetchRpc, false, false);
-    this.#turnResponseType = protoRoot.lookupType("dots_boxes_game.TurnResponse");
+    this.#turnResponseType = protoRoot.lookupType("hutsondev.dotsboxes.v1.TurnResponse");
     this.setOnTurnCompleted(null);
     this.setOnGameLoaded(null);
   }

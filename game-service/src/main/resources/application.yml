@@ -6,9 +6,6 @@ logging:
     web: DEBUG
 
 spring:
-  devtools:
-    restart:
-      enabled: false
   main:
     banner-mode: off
   redis:

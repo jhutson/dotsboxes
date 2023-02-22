@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package dots_boxes_game;
+package hutsondev.dotsboxes.v1;
 
 option java_multiple_files = true;
 option java_package = "com.hutsondev.dotsboxes.service";
@@ -68,7 +68,7 @@ message TurnResponse {
   optional GameOutcome outcome = 7;
 }
 
-service GameService {
+service Game {
   rpc Create (CreateGameRequest) returns (CreateGameResponse);
   rpc Get (GetGameRequest) returns (GetGameResponse);
   rpc MarkLine (TurnRequest) returns (TurnResponse);
