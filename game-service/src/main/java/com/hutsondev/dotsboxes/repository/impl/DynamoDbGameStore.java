@@ -6,7 +6,6 @@ import com.hutsondev.dotsboxes.model.GameSession;
 import com.hutsondev.dotsboxes.service.GameState;
 import com.hutsondev.dotsboxes.service.StateConverter;
 import com.hutsondev.dotsboxes.repository.GameStore;
-import com.hutsondev.dynamodb.repository.GameSessionEntity;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;

@@ -1,0 +1,6 @@
+com:
+  hutsondev:
+    cors:
+      allowed-origin: http://localhost
+    dynamodb:
+      endpoint-url: http://localhost:9000

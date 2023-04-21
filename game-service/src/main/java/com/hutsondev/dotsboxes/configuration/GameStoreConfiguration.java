@@ -1,24 +1,21 @@
 package com.hutsondev.dotsboxes.configuration;
 
-import com.hutsondev.dotsboxes.repository.GameStore;
-import lombok.NonNull;
+import com.hutsondev.dotsboxes.repository.impl.GameSessionEntity;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 
 @Configuration
 public class GameStoreConfiguration {
 
-  private final ApplicationContext context;
-
-  public GameStoreConfiguration(@NonNull ApplicationContext context) {
-    this.context = context;
-  }
-
   @Bean
-  public GameStore gameStore(
-      @Value("${com.hutsondev.gamestore}") String gameStoreQualifier) {
-    return context.getBean(gameStoreQualifier, GameStore.class);
+  @Lazy
+  public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient,
+      @Value("${com.hutsondev.dynamodb.table.game-sessions}") String tableName) {
+    return dynamoDbClient.table(tableName, TableSchema.fromBean(GameSessionEntity.class));
   }
 }

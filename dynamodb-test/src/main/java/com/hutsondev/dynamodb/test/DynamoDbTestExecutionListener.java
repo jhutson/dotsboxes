@@ -1,6 +1,5 @@
 package com.hutsondev.dynamodb.test;
 
-import java.lang.invoke.TypeDescriptor;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -16,6 +15,7 @@ import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
 import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.model.ResourceNotFoundException;
+import software.amazon.awssdk.services.dynamodb.model.TableStatus;
 
 public class DynamoDbTestExecutionListener implements TestExecutionListener, Ordered {
 
@@ -74,7 +74,15 @@ public class DynamoDbTestExecutionListener implements TestExecutionListener, Ord
       for (DynamoDbTable<?> table : testTables.values()) {
         deleteTable(table);
         table.createTable();
-        logger.info("Created DynamoDB table {}", table.tableName());
+
+        long waitTime = 0;
+
+        while (table.describeTable().table().tableStatus() != TableStatus.ACTIVE) {
+          Thread.sleep(100);
+          waitTime += 100;
+        }
+
+        logger.info("Created DynamoDB table {} ({}ms before table became active)", table.tableName(), waitTime);
       }
     }
   }

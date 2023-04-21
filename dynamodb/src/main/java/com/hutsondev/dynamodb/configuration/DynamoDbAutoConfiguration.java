@@ -1,24 +1,19 @@
 package com.hutsondev.dynamodb.configuration;
 
-import com.hutsondev.dynamodb.repository.GameSessionEntity;
 import java.net.URI;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 
 @AutoConfiguration
-@EnableConfigurationProperties(DynamoDbProperties.class)
 public class DynamoDbAutoConfiguration {
 
   @Bean
   @Lazy
-  public DynamoDbEnhancedClient dynamoDbClient(DynamoDbProperties properties) {
-    String endpointUrl = properties.getEndpointUrl();
+  public DynamoDbEnhancedClient dynamoDbClient(@Value("${com.hutsondev.dynamodb.endpoint-url:}") String endpointUrl) {
     DynamoDbClient client;
 
     if (endpointUrl.length() == 0) {
@@ -28,14 +23,5 @@ public class DynamoDbAutoConfiguration {
     }
 
     return DynamoDbEnhancedClient.builder().dynamoDbClient(client).build();
-  }
-
-  @Bean
-  @Lazy
-  public DynamoDbTable<GameSessionEntity> gameSessions(DynamoDbEnhancedClient dynamoDbClient,
-      DynamoDbProperties properties) {
-
-    String tableName = properties.getTable().getGameSessions();
-    return dynamoDbClient.table(tableName, TableSchema.fromBean(GameSessionEntity.class));
   }
 }

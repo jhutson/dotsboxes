@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
+import com.hutsondev.dotsboxes.configuration.GameStoreConfiguration;
 import com.hutsondev.dotsboxes.core.Board;
 import com.hutsondev.dotsboxes.core.Game;
 import com.hutsondev.dotsboxes.model.GameSession;
@@ -11,7 +12,7 @@ import com.hutsondev.dotsboxes.repository.GameStore;
 import com.hutsondev.dotsboxes.repository.impl.DynamoDbGameStore;
 import com.hutsondev.dotsboxes.service.StateConverter;
 import com.hutsondev.dynamodb.configuration.DynamoDbAutoConfiguration;
-import com.hutsondev.dynamodb.repository.GameSessionEntity;
+import com.hutsondev.dotsboxes.repository.impl.GameSessionEntity;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
